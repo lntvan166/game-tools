@@ -326,6 +326,7 @@ export function calcTotalScores(game: TienLenGame): Record<string, number> {
 
 export function loadGame(): TienLenGame | null {
   try {
+    if (typeof localStorage === 'undefined') return null;
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as TienLenGame;
@@ -339,7 +340,9 @@ export function loadGame(): TienLenGame | null {
 }
 
 export function saveGame(game: TienLenGame): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+  try {
+    if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+  } catch { /* ignore */ }
 }
 
 export function resetGame(game: TienLenGame): TienLenGame {

@@ -8,12 +8,20 @@ type GameMode = 'roulette' | 'poker' | 'score';
 const MUTE_KEY = 'liarbar-muted';
 const MODE_KEY = 'liarbar-mode';
 
+function safeGetItem(key: string): string | null {
+  try {
+    return typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null;
+  } catch {
+    return null;
+  }
+}
+
 const App: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<GameMode>(() => {
-    const saved = localStorage.getItem(MODE_KEY) as GameMode | null;
+    const saved = safeGetItem(MODE_KEY) as GameMode | null;
     return saved && ['roulette', 'poker', 'score'].includes(saved) ? saved : 'roulette';
   });
-  const [muted, setMuted] = useState<boolean>(() => localStorage.getItem(MUTE_KEY) === '1');
+  const [muted, setMuted] = useState<boolean>(() => safeGetItem(MUTE_KEY) === '1');
 
   useEffect(() => {
     document.body.classList.add('has-mode-tabs');
@@ -30,11 +38,15 @@ const App: React.FC = () => {
   }, [currentMode]);
 
   useEffect(() => {
-    localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
+    try {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
+    } catch { /* ignore */ }
   }, [muted]);
 
   useEffect(() => {
-    localStorage.setItem(MODE_KEY, currentMode);
+    try {
+      if (typeof localStorage !== 'undefined') localStorage.setItem(MODE_KEY, currentMode);
+    } catch { /* ignore */ }
   }, [currentMode]);
 
   return (

@@ -82,15 +82,15 @@ const TienLenScore: React.FC = () => {
     }
   }, [game, roundToDelete, selectedRoundIndex]);
 
-  if (!game) {
-    return <NewGameForm onSubmit={handleNewGame} />;
-  }
-
   const handleNewGameFromModal = useCallback((names: string[]) => {
     setGame(createGame(names));
     setShowNewGameModal(false);
     setShowConfig(true);
   }, []);
+
+  if (!game) {
+    return <NewGameForm onSubmit={handleNewGame} />;
+  }
 
   const scores = calcTotalScores(game);
   const sortedPlayers = [...game.players].sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0));
