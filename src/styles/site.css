@@ -114,6 +114,7 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .deck-result-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:24px 48px;border-radius:12px;font-size:1.2rem;font-weight:700;pointer-events:none;background:rgba(80,20,20,.95);color:#ff8888;border:2px solid #c93030}
 .deck-hint,.poker-hint{padding:10px 14px;margin:0 auto 12px;max-width:360px;background:#2a2a2a;border:1px solid #555;border-radius:8px;font-size:13px;color:#aaa;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .deck-hint button,.poker-hint button{flex-shrink:0;padding:4px 10px;font-size:12px;border:1px solid #666;background:#333;color:#888;cursor:pointer;border-radius:4px}
+.deck-hint button::before,.deck-hint button::after,.poker-hint button::before,.poker-hint button::after{display:none !important}
 .deck-hint button:hover,.poker-hint button:hover{color:#fff}
 
 @media (max-width:600px){
