@@ -1,4 +1,7 @@
-body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}.container{text-align:center;max-width:420px;margin:0 auto}.cylinder-wrap{position:relative;width:min(220px,45vmin);height:min(220px,45vmin);margin:0 auto}.cylinder{position:relative;width:100%;height:100%;border-radius:50%;background-color:#444;display:flex;justify-content:center;align-items:center}.cylinder-container{overflow:hidden}.chamber{position:absolute;width:18%;height:18%;border:3px solid #fff;border-radius:50%;background-color:#666;transform:translate(-50%,-50%);box-sizing:border-box}.shot{background-color:red}.chamber:nth-child(1){top:9%;left:50%}.chamber:nth-child(2){top:27%;left:77%}.chamber:nth-child(3){top:73%;left:77%}.chamber:nth-child(4){top:91%;left:50%}.chamber:nth-child(5){top:73%;left:23%}.chamber:nth-child(6){top:27%;left:23%}.cylinder.spin{animation:spin 3s cubic-bezier(.25,1,.05,1.2)}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}button{position:relative;height:50px;padding:0 30px;border:2px solid #d3a446;background:#222;user-select:none;white-space:nowrap;transition:all .05s linear;color:#d3a446;font-family:inherit;display:flex;align-items:center;justify-content:center;text-align:center}button:after,button:before{content:"";position:absolute;background:#222;transition:all .2s linear}button:before{width:calc(100% + 6px);height:calc(100% - 16px);top:8px;left:-3px}button:after{width:calc(100% - 16px);height:calc(100% + 6px);top:-3px;left:8px}button:hover{cursor:crosshair}button:active{transform:scale(.95)}button:hover:before{height:calc(100% - 32px);top:16px}button:hover:after{width:calc(100% - 32px);left:16px}button span{font-size:35px;z-index:3;position:relative;font-family:Rye,serif}.cylinder-container{width:100%;height:100%;overflow:hidden}.outer-ring{width:18%;height:18%;background-color:#222;border:2px solid #888;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2}.revolver-slot{position:absolute;background-color:#222;width:23%;height:23%;border-radius:100%}.revolver-slot.slot-one{top:-7%;right:9%}.revolver-slot.slot-two{top:-7%;left:9%;z-index:1}.revolver-slot.slot-three{left:-16%;top:50%;transform:translateY(-50%)}.revolver-slot.slot-four{left:9%;bottom:-7%}.revolver-slot.slot-five{right:9%;bottom:-7%}.revolver-slot.slot-six{right:-16%;top:50%;transform:translateY(-50%)}.card-container{display:flex;justify-content:center;margin-bottom:20px}.card{width:100px;height:140px;border:2px solid #fff;border-radius:10px;font-size:60px;font-family:Rye,serif;font-weight:700;display:flex;justify-content:center;align-items:center;background-color:#fff;color:#222;opacity:.9;cursor:pointer;text-align:center;transition:transform 3s ease-in-out,opacity 1s,border-color .5s,box-shadow .5s,background-color .5s,color .5s}.card.selected{border-color:#d3a446;box-shadow:0 0 10px #d3a446;background-color:rgb(211 164 70 / 70%);color:#fff}.card.flip{transform:rotateY(360deg);opacity:1}.divider{border-top:2px solid #888;margin:30px 0;width:100%}#blood-splatter-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;animation:blood-splatter 1s ease-out 2s;display:none;transform:translateZ(0);will-change:transform}.damage-warning{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999;background:radial-gradient(transparent,rgba(255,0,0,.1));display:none}@keyframes damage-flash{0%{opacity:.8}50%{opacity:.6}100%{opacity:.8}}.damage-warning.flash{animation:damage-flash .5s infinite}@keyframes beating{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}.beating{animation:beating .8s infinite;background:radial-gradient(transparent,rgba(255,0,0,.8))}.shot-info{display:flex;flex-direction:row;align-items:center;justify-content:space-evenly;margin:30px auto;max-width:220px}.death-chance,.shot-count{display:flex;align-items:center;justify-content:center}.death-chance img,.shot-count img{width:24px;height:24px;margin-right:8px;vertical-align:middle}.death-chance span,.shot-count span{font-size:18px;color:#fff;line-height:1}@media (max-width:600px){.death-chance img,.shot-count img{width:20px;height:20px}.death-chance span,.shot-count span{font-size:16px}}.supporters-section{margin-top:20px;padding:20px;font-size:.8em;animation:fadeIn .5s ease-in}.supporter-item{display:flex;margin:10px 0;padding:10px;animation:fadeIn .5s ease-in}.support-icon{width:24px;height:24px;margin-right:10px}.supporter-item span{flex-grow:1;text-align:left}
+body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}.container{text-align:center;max-width:420px;margin:0 auto}.cylinder-wrap{position:relative;width:min(220px,45vmin);height:min(220px,45vmin);margin:0 auto}.cylinder{position:relative;width:100%;height:100%;border-radius:50%;background-color:#444;display:flex;justify-content:center;align-items:center}.cylinder-container{overflow:hidden}.chamber{position:absolute;width:18%;height:18%;border:3px solid #fff;border-radius:50%;background-color:#666;transform:translate(-50%,-50%);box-sizing:border-box}.shot{background-color:red}.chamber:nth-child(1){top:9%;left:50%}.chamber:nth-child(2){top:27%;left:77%}.chamber:nth-child(3){top:73%;left:77%}.chamber:nth-child(4){top:91%;left:50%}.chamber:nth-child(5){top:73%;left:23%}.chamber:nth-child(6){top:27%;left:23%}.cylinder.spin{animation:spin 3s cubic-bezier(.25,1,.05,1.2)}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}button{position:relative;height:50px;padding:0 30px;border:2px solid #d3a446;background:#222;user-select:none;white-space:nowrap;transition:all .05s linear;color:#d3a446;font-family:inherit;display:flex;align-items:center;justify-content:center;text-align:center}button:after,button:before{content:"";position:absolute;background:#222;transition:all .2s linear}button:before{width:calc(100% + 6px);height:calc(100% - 16px);top:8px;left:-3px}button:after{width:calc(100% - 16px);height:calc(100% + 6px);top:-3px;left:8px}button:hover{cursor:crosshair}button:active{transform:scale(.95)}button:hover:before{height:calc(100% - 32px);top:16px}button:hover:after{width:calc(100% - 32px);left:16px}button span{font-size:35px;z-index:3;position:relative;font-family:Rye,serif}.cylinder-container{width:100%;height:100%;overflow:hidden}.outer-ring{width:18%;height:18%;background-color:#222;border:2px solid #888;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2}.revolver-slot{position:absolute;background-color:#222;width:23%;height:23%;border-radius:100%}.revolver-slot.slot-one{top:-7%;right:9%}.revolver-slot.slot-two{top:-7%;left:9%;z-index:1}.revolver-slot.slot-three{left:-16%;top:50%;transform:translateY(-50%)}.revolver-slot.slot-four{left:9%;bottom:-7%}.revolver-slot.slot-five{right:9%;bottom:-7%}.revolver-slot.slot-six{right:-16%;top:50%;transform:translateY(-50%)}.card-container{display:flex;justify-content:center;margin-bottom:20px}.card{width:100px;height:140px;border:2px solid #fff;border-radius:10px;font-size:60px;font-family:Rye,serif;font-weight:700;display:flex;justify-content:center;align-items:center;background-color:#fff;color:#222;opacity:.9;cursor:pointer;text-align:center;transition:transform 3s ease-in-out,opacity 1s,border-color .5s,box-shadow .5s,background-color .5s,color .5s}.card.selected{border-color:#d3a446;box-shadow:0 0 10px #d3a446;background-color:rgb(211 164 70 / 70%);color:#fff}.card.flip{transform:rotateY(360deg);opacity:1}.divider{border-top:2px solid #888;margin:30px 0;width:100%}#blood-splatter-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;animation:blood-splatter 1s ease-out 2s;display:none;transform:translateZ(0);will-change:transform}.damage-warning{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999;background:radial-gradient(transparent,rgba(255,0,0,.1));display:none}@keyframes shake-on-death{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-4px)}20%,40%,60%,80%{transform:translateX(4px)}}
+body.shake-on-death{animation:shake-on-death .45s ease-out}
+@media (prefers-reduced-motion:reduce){body.shake-on-death{animation:none}}
+@keyframes damage-flash{0%{opacity:.8}50%{opacity:.6}100%{opacity:.8}}.damage-warning.flash{animation:damage-flash .5s infinite}@keyframes beating{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}.beating{animation:beating .8s infinite;background:radial-gradient(transparent,rgba(255,0,0,.8))}.shot-info{display:flex;flex-direction:row;align-items:center;justify-content:space-evenly;margin:30px auto;max-width:220px}.death-chance,.shot-count{display:flex;align-items:center;justify-content:center}.death-chance img,.shot-count img{width:24px;height:24px;margin-right:8px;vertical-align:middle}.death-chance span,.shot-count span{font-size:18px;color:#fff;line-height:1}@media (max-width:600px){.death-chance img,.shot-count img{width:20px;height:20px}.death-chance span,.shot-count span{font-size:16px}}.supporters-section{margin-top:20px;padding:20px;font-size:.8em;animation:fadeIn .5s ease-in}.supporter-item{display:flex;margin:10px 0;padding:10px;animation:fadeIn .5s ease-in}.support-icon{width:24px;height:24px;margin-right:10px}.supporter-item span{flex-grow:1;text-align:left}
 
 /* Mode tabs - tắt pseudo-elements global của button để chữ không bị che */
 .mode-tabs{display:flex;justify-content:center;gap:0;margin:0 auto 16px;max-width:400px;border-bottom:1px solid #555;box-shadow:none}
@@ -15,8 +18,27 @@ body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#ff
 @media (prefers-reduced-motion:reduce){
 .cylinder.spin,.poker-cylinder-8.poker-cylinder-spin{animation-duration:.4s}
 .poker-result-overlay{animation:none}
+.deck-result-overlay{animation:none}
 .damage-warning.beating{animation:none}
 .card.flip{transition-duration:.3s}
+}
+
+/* Deck card – 3D flip */
+.card-container--3d{perspective:800px}
+.card-container--3d .card{position:relative;overflow:hidden;padding:0;background:transparent;border:none;box-shadow:none}
+.card-container--3d .card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.34,1.2,.64,1)}
+.card-container--3d .card-inner--flipped{transform:rotateY(180deg)}
+.card-container--3d .card-face{position:absolute;inset:0;border-radius:8px;margin:2px;display:flex;align-items:center;justify-content:center;font-size:inherit;font-family:Rye,serif;font-weight:700;background:#fff;color:#222;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.card-container--3d .card-face--front{border:2px solid #fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.card-container--3d .card-face--back{transform:rotateY(180deg);border:2px solid #fff}
+.card-container--3d .card.selected .card-face--back{border-color:#d3a446;box-shadow:0 0 10px #d3a446;background:rgb(211 164 70 / 70%);color:#fff}
+.card-container--3d .card[aria-disabled="true"]{cursor:default}
+.card-container--3d .card:not([aria-disabled="true"]){transition:transform .2s ease}
+.card-container--3d .card:not([aria-disabled="true"]):hover{transform:scale(1.03)}
+.card-container--3d .card:not([aria-disabled="true"]):active{transform:scale(0.98)}
+@media (prefers-reduced-motion:reduce){
+.card-container--3d .card-inner{transition-duration:.35s}
+.card-container--3d .card:not([aria-disabled="true"]):hover{transform:none}
 }
 
 /* Poker mode */
@@ -24,10 +46,15 @@ body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#ff
 .poker-title{font-size:1.4rem;margin:8px 0 16px;color:#fff}
 .poker-stage-label{font-size:1.1rem;margin-bottom:12px;color:#d3a446}
 .poker-board-cards{display:flex;justify-content:center;gap:6px;margin:0 auto 16px;flex-wrap:wrap}
-.poker-card-slot{width:52px;height:72px;border-radius:8px;overflow:hidden;border:2px solid #555;flex-shrink:0;background:#1a1a1a}
-.poker-card-slot--open{border-color:#666}
-.poker-card-slot--closed{border-color:#444}
-.poker-card-img{width:100%;height:100%;object-fit:cover;display:block}
+.poker-card-slot{width:52px;height:72px;border-radius:8px;overflow:hidden;border:none;flex-shrink:0;background:transparent;perspective:120px}
+.poker-card-slot-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s ease-out}
+.poker-card-slot-inner--flipped{transform:rotateY(180deg)}
+.poker-card-slot-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.poker-card-slot-face--back{transform:rotateY(0)}
+.poker-card-slot-face--front{transform:rotateY(180deg)}
+.poker-card-img{width:100%;height:100%;object-fit:cover;display:block;object-position:center}
+/* Cắt bớt viền trắng quanh ảnh bài – scale lên để overflow:hidden cắt mép */
+.poker-card-slot-face .poker-card-img{transform:scale(1.12);transform-origin:center}
 .poker-bullet-track{margin-bottom:16px}
 .poker-bullets-label{display:block;font-size:14px;margin-bottom:6px;color:#ccc}
 .poker-bullet-dots{display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
@@ -53,6 +80,9 @@ body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#ff
 /* Vùng đen giữa: 13.75% cylinder */
 .poker-cylinder-center{position:absolute;top:50%;left:50%;width:13.75%;height:13.75%;transform:translate(-50%,-50%);background:#222;border:1px solid #555;border-radius:50%;z-index:3}
 .poker-shot-info{display:flex;flex-direction:column;gap:4px;margin:12px 0;font-size:14px;color:#aaa}
+.poker-shot-info .death-chance{display:flex;align-items:center;justify-content:center;gap:6px}
+.poker-shot-info .death-chance img{width:22px;height:22px}
+.poker-shot-info .death-chance span{font-size:16px;color:#fff}
 /* Poker: dùng cùng khung góc (::before/::after) như nút FIRE, chữ nổi trên khung nhờ span z-index */
 .poker-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0;flex-shrink:0}
 .poker-btn{position:relative;height:42px;padding:0 20px;border:2px solid #d3a446;background:#222;color:#d3a446;font-family:inherit;font-size:15px;cursor:pointer;transition:transform .05s,opacity .2s;z-index:1;display:flex;align-items:center;justify-content:center}
@@ -69,11 +99,17 @@ body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#ff
 .poker-btn-reset.poker-btn-reset--prominent{border-color:#d3a446;color:#d3a446;background:rgba(211,164,70,.15);box-shadow:0 0 20px rgba(211,164,70,.5);font-size:13px;padding:8px 18px}
 .poker-btn-reset.poker-btn-reset--prominent:hover:not(:disabled){color:#fff;box-shadow:0 0 24px rgba(211,164,70,.7)}
 
+.poker-cylinder-wrap--ready .poker-cylinder-8{animation:poker-cylinder-pulse 2s ease-in-out infinite}
+@keyframes poker-cylinder-pulse{0%,100%{box-shadow:0 0 8px rgba(211,164,70,.25)}50%{box-shadow:0 0 16px rgba(211,164,70,.4)}}
+@media (prefers-reduced-motion:reduce){.poker-cylinder-wrap--ready .poker-cylinder-8{animation:none}}
 .poker-bullet-icon{width:24px;height:24px;object-fit:contain;transition:opacity .2s,filter .2s}
 .poker-bullet-icon:not(.committed){opacity:.5}
 .poker-bullet-icon.committed{opacity:1;filter:brightness(1.05)}
+.poker-bullet-icon--next{animation:poker-bullet-pulse 1.5s ease-in-out infinite}
+@keyframes poker-bullet-pulse{0%,100%{filter:brightness(1.05)}50%{filter:brightness(1.25) drop-shadow(0 0 4px rgba(201,48,48,.4))}}
+@media (prefers-reduced-motion:reduce){.poker-bullet-icon--next{animation:none}}
 
-.poker-result-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:24px 48px;border-radius:12px;font-size:1.5rem;font-weight:700;font-family:inherit;pointer-events:none;animation:poker-result-in .3s ease-out}
+.poker-result-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:24px 48px;border-radius:12px;font-size:1.5rem;font-weight:700;font-family:inherit;pointer-events:none;animation:poker-result-in .3s ease-out;white-space:nowrap}
 .poker-result-overlay--alive{background:rgba(40,80,40,.95);color:#9eeb9e;border:2px solid #6a9e6a}
 .poker-result-overlay--dead{background:rgba(80,20,20,.95);color:#ff8888;border:2px solid #c93030}
 @keyframes poker-result-in{from{opacity:0;transform:translate(-50%,-50%) scale(0.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
@@ -84,6 +120,9 @@ body.has-mode-tabs{padding-top:8px;align-items:flex-start;padding-bottom:24px;fl
 body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:100%}
 .app-credit{flex-shrink:0;text-align:center;font-size:12px;color:#666;padding:12px 16px;margin-top:auto}
 .mode-content{flex:1;display:flex;flex-direction:column;min-height:0}
+.mode-content-inner{flex:1;display:flex;flex-direction:column;min-height:0;animation:mode-fade-in .22s ease-out}
+@keyframes mode-fade-in{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.mode-content-inner{animation:none}}
 .mode-content>.container,.poker-container{flex:1;display:flex;flex-direction:column;min-height:0}
 .poker-container{justify-content:flex-start}
 /* Deck mode: layout title → space → card → space → line → space → gun → space → rate → FIRE, space = nửa lá bài */
@@ -92,11 +131,21 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .mode-content>.container .divider{flex:0 0 auto;margin:var(--deck-gap) 0}
 .deck-gun-block{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;margin:0;width:100%}
 .deck-gun-block .cylinder-wrap{margin:0 0 var(--deck-gap);flex:0 0 auto;aspect-ratio:1;width:min(260px,52vmin);height:min(260px,52vmin)}
-.deck-shot-info{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:24px;margin:0;max-width:220px;flex:0 0 auto}
+/* Ổ đạn Deck: loaded = không viền, xám sáng; empty/fired = viền trắng, xám đậm */
+.deck-gun-block .chamber{border:2px solid transparent;background:#777;box-shadow:inset 0 0 4px rgba(0,0,0,.3)}
+.deck-gun-block .chamber.shot{border-color:#fff;background:#444;box-shadow:none}
+/* Vị trí 6 lỗ đạn đều trên vòng tròn (60° mỗi lỗ), radius ~38% */
+.deck-gun-block .chamber:nth-child(1){top:12%;left:50%}
+.deck-gun-block .chamber:nth-child(2){top:31%;left:83%}
+.deck-gun-block .chamber:nth-child(3){top:69%;left:83%}
+.deck-gun-block .chamber:nth-child(4){top:88%;left:50%}
+.deck-gun-block .chamber:nth-child(5){top:69%;left:17%}
+.deck-gun-block .chamber:nth-child(6){top:31%;left:17%}
+.deck-shot-info{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:24px;margin:14px 0;max-width:220px;flex:0 0 auto}
 .deck-shot-info .death-chance,.deck-shot-info .shot-count{display:flex;align-items:center;justify-content:center;gap:6px}
 .deck-shot-info .death-chance img,.deck-shot-info .shot-count img{width:22px;height:22px}
 .deck-shot-info .death-chance span,.deck-shot-info .shot-count span{font-size:16px;color:#fff}
-.deck-actions{display:flex;justify-content:center;align-items:center;flex:0 0 auto;margin-top:var(--deck-gap);padding-bottom:var(--deck-gap)}
+.deck-actions{display:flex;justify-content:center;align-items:center;flex:0 0 auto;margin-top:20px;padding-bottom:var(--deck-gap)}
 .deck-actions button{max-width:280px}
 @media (max-width:600px){
 .mode-content{overflow:hidden}
@@ -111,7 +160,8 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .deck-actions{margin-top:var(--deck-gap);padding-bottom:var(--deck-gap)}
 .deck-actions button{font-size:0.95rem;padding:10px 20px}
 }
-.deck-result-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:24px 48px;border-radius:12px;font-size:1.2rem;font-weight:700;pointer-events:none;background:rgba(80,20,20,.95);color:#ff8888;border:2px solid #c93030}
+.deck-result-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:24px 48px;border-radius:12px;font-size:1.2rem;font-weight:700;pointer-events:none;background:rgba(80,20,20,.95);color:#ff8888;border:2px solid #c93030;animation:deck-result-in .25s ease-out}
+@keyframes deck-result-in{from{opacity:0;transform:translate(-50%,-50%) scale(0.92)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 .deck-hint,.poker-hint{padding:10px 14px;margin:0 auto 12px;max-width:360px;background:#2a2a2a;border:1px solid #555;border-radius:8px;font-size:13px;color:#aaa;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .deck-hint button,.poker-hint button{flex-shrink:0;padding:4px 10px;font-size:12px;border:1px solid #666;background:#333;color:#888;cursor:pointer;border-radius:4px}
 .deck-hint button::before,.deck-hint button::after,.poker-hint button::before,.poker-hint button::after{display:none !important}

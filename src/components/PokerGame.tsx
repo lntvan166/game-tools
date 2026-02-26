@@ -62,7 +62,6 @@ const PokerGame: React.FC<PokerGameProps> = ({ muted }) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [splatters, setSplatters] = useState<{ id: number; src: string; style: React.CSSProperties }[]>([]);
   const [hintDismissed, setHintDismissed] = useState<boolean>(() => localStorage.getItem(POKER_HINT_KEY) === '1');
-
   const spinSoundRef = useRef<HTMLAudioElement>(null);
   const gunshotSoundRef = useRef<HTMLAudioElement>(null);
   const emptyClickSoundRef = useRef<HTMLAudioElement>(null);
@@ -73,6 +72,29 @@ const PokerGame: React.FC<PokerGameProps> = ({ muted }) => {
   useEffect(() => {
     if (shotResult !== 'none' && resetBtnRef.current) resetBtnRef.current.focus();
   }, [shotResult]);
+
+  useEffect(() => {
+    if (shotResult === 'dead') {
+      document.body.classList.add('shake-on-death');
+      const t = setTimeout(() => document.body.classList.remove('shake-on-death'), 500);
+      return () => clearTimeout(t);
+    }
+  }, [shotResult]);
+
+  useEffect(() => {
+    const overlay = damageOverlayRef.current;
+    if (!overlay) return;
+    if (shotResult === 'dead') {
+      overlay.style.display = 'block';
+      overlay.classList.remove('beating');
+    } else if (bulletsCommitted === 8 && shotResult === 'none') {
+      overlay.style.display = 'block';
+      overlay.classList.add('beating');
+    } else {
+      overlay.style.display = 'none';
+      overlay.classList.remove('beating');
+    }
+  }, [bulletsCommitted, shotResult]);
 
   const play = (ref: React.RefObject<HTMLAudioElement | null>) => {
     if (muted || !ref.current) return;
@@ -183,11 +205,14 @@ const PokerGame: React.FC<PokerGameProps> = ({ muted }) => {
                 className={`poker-card-slot poker-card-slot--${isOpen ? 'open' : 'closed'}`}
                 title={isOpen ? 'Open' : 'Closed'}
               >
-                <img
-                  src={isOpen ? '/assets/img/card-open.png' : '/assets/img/card-closed.png'}
-                  alt={isOpen ? 'Open card' : 'Closed card'}
-                  className="poker-card-img"
-                />
+                <div className={`poker-card-slot-inner ${isOpen ? 'poker-card-slot-inner--flipped' : ''}`}>
+                  <div className="poker-card-slot-face poker-card-slot-face--back">
+                    <img src="/assets/img/card-closed.png" alt="" className="poker-card-img" aria-hidden />
+                  </div>
+                  <div className="poker-card-slot-face poker-card-slot-face--front">
+                    <img src="/assets/img/card-open.png" alt="" className="poker-card-img" aria-hidden />
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -201,14 +226,14 @@ const PokerGame: React.FC<PokerGameProps> = ({ muted }) => {
                 key={i}
                 src={i < bulletsCommitted ? '/assets/img/bullet-token.png' : '/assets/img/bullet-token-empty.png'}
                 alt=""
-                className={`poker-bullet-icon ${i < bulletsCommitted ? 'committed' : ''}`}
+                className={`poker-bullet-icon ${i < bulletsCommitted ? 'committed' : ''} ${i === bulletsCommitted - 1 && bulletsCommitted > 0 && !isResolvingShot ? 'poker-bullet-icon--next' : ''}`}
                 aria-hidden
               />
             ))}
           </div>
         </div>
 
-        <div className="poker-cylinder-wrap">
+        <div className={`poker-cylinder-wrap ${bulletsCommitted > 0 && !isResolvingShot ? 'poker-cylinder-wrap--ready' : ''}`}>
           <div className={`poker-cylinder-8 ${isResolvingShot ? 'poker-cylinder-spin' : ''}`}>
             {chamberOrder.map((i, index) => (
               <div
@@ -222,7 +247,10 @@ const PokerGame: React.FC<PokerGameProps> = ({ muted }) => {
         </div>
 
         <div className="poker-shot-info" aria-live="polite" aria-atomic="true">
-          <span>Death chance: {deathChancePct}%</span>
+          <div className="death-chance">
+            <img src="/assets/img/skull.png" alt="" aria-hidden />
+            <span>{deathChancePct}%</span>
+          </div>
         </div>
 
         <div className="poker-actions">
@@ -241,10 +269,10 @@ const PokerGame: React.FC<PokerGameProps> = ({ muted }) => {
             className="poker-btn poker-btn-fold"
             disabled={!canFold || isButtonDisabled}
             onClick={onFold}
-            title={foldTitle}
-            aria-label={foldTitle || 'Fold – shoot'}
+            title={foldTitle || (bulletsCommitted >= 5 ? 'Fire – shoot' : undefined)}
+            aria-label={foldTitle || (bulletsCommitted >= 5 ? 'Fire – shoot' : 'Fold – shoot')}
           >
-            <span>Fold</span>
+            <span>{bulletsCommitted >= 5 ? 'Fire' : 'Fold'}</span>
           </button>
           <button
             type="button"

@@ -53,7 +53,9 @@ const App: React.FC = () => {
         {muted ? '\u{1F507}' : '\u{1F50A}'}
       </button>
       <div className="mode-content">
-        {currentMode === 'roulette' ? <Game muted={muted} /> : <PokerGame muted={muted} />}
+        <div key={currentMode} className="mode-content-inner">
+          {currentMode === 'roulette' ? <Game muted={muted} /> : <PokerGame muted={muted} />}
+        </div>
       </div>
       <footer className="app-credit" role="contentinfo">
         Developed by irok
