@@ -9,10 +9,14 @@ interface GameProps {
   muted: boolean;
 }
 
+type CardPhase = 'idle' | 'shuffling' | 'flipping' | 'revealed';
+
 const Game: React.FC<GameProps> = ({ muted }) => {
   const [card, setCard] = useState<string>('A');
-  const [isFlipping, setIsFlipping] = useState<boolean>(false);
+  const [phase, setPhase] = useState<CardPhase>('idle');
+  const [shuffleValue, setShuffleValue] = useState<string>('?');
   const shuffleInterval = useRef<number | undefined>(undefined);
+  const [isFlipping, setIsFlipping] = useState<boolean>(false);
   const [shotsTaken, setShotsTaken] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const bulletPositionRef = useRef<number>(Math.floor(Math.random() * totalChambers));
@@ -34,6 +38,14 @@ const Game: React.FC<GameProps> = ({ muted }) => {
   const remaining = totalChambers - shotsTaken;
   const deathChancePct = remaining > 0 ? (100 / remaining).toFixed(2) : '100';
   const chamberOrder = [0, 5, 1, 4, 2, 3];
+
+  useEffect(() => {
+    if (isGameOver) {
+      document.body.classList.add('shake-on-death');
+      const t = setTimeout(() => document.body.classList.remove('shake-on-death'), 500);
+      return () => clearTimeout(t);
+    }
+  }, [isGameOver]);
 
   useEffect(() => {
     const overlay = damageOverlayRef.current;
@@ -84,6 +96,8 @@ const Game: React.FC<GameProps> = ({ muted }) => {
   const resetGame = () => {
     setShotsTaken(0);
     setIsGameOver(false);
+    setPhase('idle');
+    setCard('A');
     bulletPositionRef.current = Math.floor(Math.random() * totalChambers);
     if (bloodContainerRef.current) bloodContainerRef.current.style.display = 'none';
     clearSplatters();
@@ -100,21 +114,19 @@ const Game: React.FC<GameProps> = ({ muted }) => {
     if (isFlipping) return;
     setIsFlipping(true);
     const options = [...cardOptions];
-    const cardEl = document.getElementById('card');
+    setPhase('shuffling');
+    setShuffleValue(options[Math.floor(Math.random() * options.length)]);
     shuffleInterval.current = window.setInterval(() => {
-      const val = options[Math.floor(Math.random() * options.length)];
-      if (cardEl) cardEl.textContent = val;
+      setShuffleValue((_) => options[Math.floor(Math.random() * options.length)]);
     }, 100);
-    cardEl?.classList.add('flip');
     play(clickSoundRef);
+    const flipDuration = 800;
     setTimeout(() => {
       clearInterval(shuffleInterval.current);
       const val = options[Math.floor(Math.random() * options.length)];
       setCard(val);
-      if (cardEl) {
-        cardEl.textContent = val;
-        cardEl.classList.add('selected');
-      }
+      setShuffleValue('?');
+      setPhase('flipping');
       play(chimeSoundRef);
       setTimeout(() => {
         const utterance = new SpeechSynthesisUtterance(
@@ -125,13 +137,10 @@ const Game: React.FC<GameProps> = ({ muted }) => {
         if (!muted) window.speechSynthesis.speak(utterance);
       }, 300);
       setTimeout(() => {
-        if (cardEl) {
-          cardEl.classList.remove('selected');
-          cardEl.classList.remove('flip');
-        }
+        setPhase('revealed');
         setIsFlipping(false);
-      }, 2000);
-    }, 2000);
+      }, flipDuration);
+    }, 1200);
   };
 
   const handleFire = () => {
@@ -164,6 +173,19 @@ const Game: React.FC<GameProps> = ({ muted }) => {
     localStorage.setItem(DECK_HINT_KEY, '1');
   };
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== ' ' || e.repeat) return;
+      const target = document.activeElement as HTMLElement | null;
+      if (target?.closest('button') || target?.getAttribute('role') === 'button') return;
+      if (isButtonDisabled) return;
+      e.preventDefault();
+      handleFire();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isButtonDisabled, handleFire]);
+
   return (
     <>
       <div className="container">
@@ -175,9 +197,22 @@ const Game: React.FC<GameProps> = ({ muted }) => {
             </button>
           </div>
         )}
-        <div className="card-container">
-          <div className="card" id="card" onClick={handleCardClick} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(); } }} aria-label="Pick a card">
-            {card}
+        <div className="card-container card-container--3d">
+          <div
+            className={`card ${phase === 'revealed' ? 'selected' : ''}`}
+            onClick={handleCardClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(); } }}
+            aria-label={phase === 'revealed' ? 'Pick another card' : 'Pick a card'}
+            aria-disabled={isFlipping}
+          >
+            <div className={`card-inner ${phase === 'flipping' || phase === 'revealed' ? 'card-inner--flipped' : ''}`}>
+              <div className="card-face card-face--front">
+                {phase === 'shuffling' ? shuffleValue : '?'}
+              </div>
+              <div className="card-face card-face--back">{card}</div>
+            </div>
           </div>
         </div>
         <div className="divider" />
@@ -212,6 +247,7 @@ const Game: React.FC<GameProps> = ({ muted }) => {
             disabled={isButtonDisabled}
             onClick={handleFire}
             aria-label={isGameOver ? 'Reset game' : 'Fire'}
+            title={isGameOver ? 'Reset game' : 'Fire (Space)'}
           >
             <span>{isGameOver ? 'RESET' : 'FIRE'}</span>
           </button>
@@ -219,7 +255,7 @@ const Game: React.FC<GameProps> = ({ muted }) => {
       </div>
       {isGameOver && (
         <div className="deck-result-overlay" role="status">
-          You died. Click RESET to play again.
+          You died
         </div>
       )}
       <audio ref={clickSoundRef} src="/assets/mp3/click.mp3" preload="auto" />
