@@ -1,4 +1,4 @@
-import React, { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
         }}>
           <h2 style={{ color: '#d3a446', marginBottom: 16 }}>Something went wrong</h2>
           <p style={{ color: '#aaa', marginBottom: 16 }}>Please refresh the page or try again.</p>
-          {process.env.NODE_ENV === 'development' && this.state.error && (
+          {import.meta.env.DEV && this.state.error && (
             <pre style={{ fontSize: 12, color: '#888', maxWidth: 400, overflow: 'auto' }}>
               {this.state.error.message}
             </pre>
