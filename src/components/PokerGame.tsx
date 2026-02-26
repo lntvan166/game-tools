@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '../styles/site.css';
 
 const TOTAL_CHAMBERS = 8;
@@ -49,22 +49,41 @@ function generateSplatters(): { id: number; src: string; style: React.CSSPropert
   });
 }
 
-const PokerGame: React.FC = () => {
+const POKER_HINT_KEY = 'liarbar-poker-hint-dismissed';
+
+interface PokerGameProps {
+  muted: boolean;
+}
+
+const PokerGame: React.FC<PokerGameProps> = ({ muted }) => {
   const [bulletsCommitted, setBulletsCommitted] = useState(0);
   const [shotResult, setShotResult] = useState<ShotResult>('none');
   const [isResolvingShot, setIsResolvingShot] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [splatters, setSplatters] = useState<{ id: number; src: string; style: React.CSSProperties }[]>([]);
+  const [hintDismissed, setHintDismissed] = useState<boolean>(() => localStorage.getItem(POKER_HINT_KEY) === '1');
 
   const spinSoundRef = useRef<HTMLAudioElement>(null);
   const gunshotSoundRef = useRef<HTMLAudioElement>(null);
   const emptyClickSoundRef = useRef<HTMLAudioElement>(null);
   const damageOverlayRef = useRef<HTMLDivElement>(null);
   const bloodContainerRef = useRef<HTMLDivElement>(null);
+  const resetBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (shotResult !== 'none' && resetBtnRef.current) resetBtnRef.current.focus();
+  }, [shotResult]);
+
+  const play = (ref: React.RefObject<HTMLAudioElement | null>) => {
+    if (muted || !ref.current) return;
+    ref.current.pause();
+    ref.current.currentTime = 0;
+    ref.current.play();
+  };
 
   const openCards = getOpenCardsCount(bulletsCommitted);
   const deathChancePct = bulletsCommitted > 0
-    ? (bulletsCommitted === 8 ? '99' : ((bulletsCommitted / TOTAL_CHAMBERS) * 100).toFixed(0))
+    ? (bulletsCommitted === 8 ? '95' : ((bulletsCommitted / TOTAL_CHAMBERS) * 100).toFixed(0))
     : '0';
   const canCall = bulletsCommitted >= 0 && bulletsCommitted <= 4;
   const canFold = bulletsCommitted > 0;
@@ -74,11 +93,7 @@ const PokerGame: React.FC = () => {
     if (n <= 0) return;
     setIsResolvingShot(true);
     setIsButtonDisabled(true);
-    if (spinSoundRef.current) {
-      spinSoundRef.current.pause();
-      spinSoundRef.current.currentTime = 0;
-      spinSoundRef.current.play();
-    }
+    play(spinSoundRef);
     const spinDuration = 2500;
     setTimeout(() => {
       const chambers = Array.from({ length: TOTAL_CHAMBERS }, (_, i) => i);
@@ -87,30 +102,23 @@ const PokerGame: React.FC = () => {
         bulletIndices.add(chambers[Math.floor(Math.random() * chambers.length)]);
       }
       const shotIndex = Math.floor(Math.random() * TOTAL_CHAMBERS);
-      const jammed = n === 8 && Math.random() < 0.01;
+      const jammed = n === 8 && Math.random() < 0.05;
       const isDead = jammed ? false : bulletIndices.has(shotIndex);
       setShotResult(isDead ? 'dead' : (n === 8 && jammed ? 'god_save' : 'alive'));
       if (isDead) {
-        if (gunshotSoundRef.current) {
-          gunshotSoundRef.current.pause();
-          gunshotSoundRef.current.currentTime = 0;
-          gunshotSoundRef.current.play();
-        }
+        play(gunshotSoundRef);
         setSplatters(generateSplatters());
         if (bloodContainerRef.current) bloodContainerRef.current.style.display = 'block';
         if (damageOverlayRef.current) {
           damageOverlayRef.current.style.display = 'block';
           damageOverlayRef.current.classList.remove('beating');
         }
-      } else if (emptyClickSoundRef.current) {
-        emptyClickSoundRef.current.pause();
-        emptyClickSoundRef.current.currentTime = 0;
-        emptyClickSoundRef.current.play();
+      } else {
+        play(emptyClickSoundRef);
       }
       setIsResolvingShot(false);
-      // Giữ overlay sống/chết + animation chết + trạng thái round đến khi user bấm Reset (không auto ẩn)
     }, spinDuration);
-  }, []);
+  }, [muted]);
 
   const onCall = () => {
     if (!canCall || isButtonDisabled) return;
@@ -141,13 +149,29 @@ const PokerGame: React.FC = () => {
     if (damageOverlayRef.current) damageOverlayRef.current.style.display = 'none';
   };
 
-  const chamberOrder = [0, 7, 1, 6, 2, 5, 3, 4];
+  const dismissHint = () => {
+    setHintDismissed(true);
+    localStorage.setItem(POKER_HINT_KEY, '1');
+  };
+
+  const chamberOrder = [0, 1, 2, 3, 4, 5, 6, 7];
+
+  const callTitle = !canCall && isButtonDisabled ? 'Wait for shot' : !canCall ? 'Max 4 bullets to Call' : undefined;
+  const foldTitle = !canFold && isButtonDisabled ? 'Wait for shot' : !canFold ? 'Need at least 1 bullet to Fold' : undefined;
+  const allInTitle = !canAllIn && isButtonDisabled ? 'Wait for shot' : !canAllIn && bulletsCommitted === 8 ? 'Already all-in' : undefined;
+  const resetTitle = isButtonDisabled && shotResult === 'none' ? 'No hand to reset' : undefined;
 
   return (
     <>
       <div className="poker-container">
-        <h1 className="poker-title">Liar&apos;s Bar Poker Mode</h1>
-
+        {!hintDismissed && (
+          <div className="poker-hint" role="status">
+            <span>Call = add bullet, Fold = shoot.</span>
+            <button type="button" onClick={dismissHint} aria-label="Dismiss hint">
+              OK
+            </button>
+          </div>
+        )}
         <div className="poker-stage-label">{getStageLabel(bulletsCommitted)}</div>
 
         <div className="poker-board-cards">
@@ -197,13 +221,8 @@ const PokerGame: React.FC = () => {
           </div>
         </div>
 
-        <div className="poker-shot-info">
+        <div className="poker-shot-info" aria-live="polite" aria-atomic="true">
           <span>Death chance: {deathChancePct}%</span>
-          {shotResult !== 'none' && (
-            <span className={`poker-last-shot poker-last-shot--${shotResult === 'god_save' ? 'alive' : shotResult}`}>
-              {shotResult === 'god_save' ? 'GOD SAVE' : shotResult === 'alive' ? 'You survived' : 'You died'}
-            </span>
-          )}
         </div>
 
         <div className="poker-actions">
@@ -212,33 +231,42 @@ const PokerGame: React.FC = () => {
             className="poker-btn poker-btn-call"
             disabled={!canCall || isButtonDisabled}
             onClick={onCall}
+            title={callTitle}
+            aria-label={callTitle || 'Call – add one bullet'}
           >
-            Call
+            <span>Call</span>
           </button>
           <button
             type="button"
             className="poker-btn poker-btn-fold"
             disabled={!canFold || isButtonDisabled}
             onClick={onFold}
+            title={foldTitle}
+            aria-label={foldTitle || 'Fold – shoot'}
           >
-            Fold
+            <span>Fold</span>
           </button>
           <button
             type="button"
             className="poker-btn poker-btn-allin"
             disabled={!canAllIn || isButtonDisabled}
             onClick={onAllIn}
+            title={allInTitle}
+            aria-label={allInTitle || 'All-in – 8 bullets'}
           >
-            All-in
+            <span>All-in</span>
           </button>
         </div>
         <button
           type="button"
-          className="poker-btn-reset"
+          className={`poker-btn-reset ${shotResult !== 'none' ? 'poker-btn-reset--prominent' : ''}`}
           onClick={onReset}
           disabled={isButtonDisabled && shotResult === 'none'}
+          title={resetTitle}
+          aria-label={resetTitle || 'Reset hand'}
+          ref={resetBtnRef}
         >
-          Reset hand
+          <span>Reset hand</span>
         </button>
       </div>
 
@@ -247,7 +275,7 @@ const PokerGame: React.FC = () => {
       <audio ref={emptyClickSoundRef} src="/assets/mp3/empty-gunshot.mp3" preload="auto" />
       <div className="damage-warning" ref={damageOverlayRef} style={{ display: 'none' }} aria-hidden />
       {shotResult !== 'none' && (
-        <div className={`poker-result-overlay poker-result-overlay--${shotResult === 'god_save' ? 'alive' : shotResult}`} role="status">
+        <div className={`poker-result-overlay poker-result-overlay--${shotResult === 'god_save' ? 'alive' : shotResult}`} role="status" aria-live="polite">
           {shotResult === 'god_save' ? 'GOD SAVE' : shotResult === 'alive' ? 'You survived' : 'You died'}
         </div>
       )}

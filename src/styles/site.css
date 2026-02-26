@@ -1,15 +1,27 @@
-body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}.container{text-align:center}.cylinder{position:relative;width:220px;height:220px;margin:0 auto;border-radius:50%;background-color:#444;display:flex;justify-content:center;align-items:center}.cylinder-container{overflow:hidden}.chamber{width:40px;height:40px;border:3px solid #fff;border-radius:50%;background-color:#666;position:absolute}.shot{background-color:red}.chamber:nth-child(1){top:10px;left:50%;transform:translate(-50%,0)}.chamber:nth-child(2){top:50px;left:20px}.chamber:nth-child(3){top:50px;right:20px}.chamber:nth-child(4){bottom:50px;left:20px}.chamber:nth-child(5){bottom:50px;right:20px}.chamber:nth-child(6){bottom:10px;left:50%;transform:translate(-50%,0)}.cylinder.spin{animation:spin 3s cubic-bezier(.25,1,.05,1.2)}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}button{position:relative;height:50px;padding:0 30px;border:2px solid #d3a446;background:#222;user-select:none;white-space:nowrap;transition:all .05s linear;color:#d3a446;font-family:inherit}button:after,button:before{content:"";position:absolute;background:#222;transition:all .2s linear}button:before{width:calc(100% + 6px);height:calc(100% - 16px);top:8px;left:-3px}button:after{width:calc(100% - 16px);height:calc(100% + 6px);top:-3px;left:8px}button:hover{cursor:crosshair}button:active{transform:scale(.95)}button:hover:before{height:calc(100% - 32px);top:16px}button:hover:after{width:calc(100% - 32px);left:16px}button span{font-size:35px;z-index:3;position:relative;font-family:Rye,serif}.outer-ring{width:40px;height:40px;background-color:#222;border:2px solid #888;border-radius:50%;display:flex;justify-content:center;align-items:center;position:relative;z-index:2}.revolver-slot{position:absolute;background-color:#222;width:50px;height:50px;border-radius:100%}.revolver-slot.slot-one{top:-15px;right:20px}.revolver-slot.slot-two{top:-15px;left:20px;z-index:1}.revolver-slot.slot-three{left:-35px;top:50%;transform:translateY(-50%)}.revolver-slot.slot-four{left:20px;bottom:-15px}.revolver-slot.slot-five{right:20px;bottom:-15px}.revolver-slot.slot-six{right:-35px;top:50%;transform:translateY(-50%)}.card-container{display:flex;justify-content:center;margin-bottom:20px}.card{width:100px;height:140px;border:2px solid #fff;border-radius:10px;font-size:60px;font-family:Rye,serif;font-weight:700;display:flex;justify-content:center;align-items:center;background-color:#fff;color:#222;opacity:.9;cursor:pointer;text-align:center;transition:transform 3s ease-in-out,opacity 1s,border-color .5s,box-shadow .5s,background-color .5s,color .5s}.card.selected{border-color:#d3a446;box-shadow:0 0 10px #d3a446;background-color:rgb(211 164 70 / 70%);color:#fff}.card.flip{transform:rotateY(360deg);opacity:1}.divider{border-top:2px solid #888;margin:30px 0;width:100%}#blood-splatter-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;animation:blood-splatter 1s ease-out 2s;display:none;transform:translateZ(0);will-change:transform}.damage-warning{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999;background:radial-gradient(transparent,rgba(255,0,0,.1));display:none}@keyframes damage-flash{0%{opacity:.8}50%{opacity:.6}100%{opacity:.8}}.damage-warning.flash{animation:damage-flash .5s infinite}@keyframes beating{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}.beating{animation:beating .8s infinite;background:radial-gradient(transparent,rgba(255,0,0,.8))}.shot-info{display:flex;flex-direction:row;align-items:center;justify-content:space-evenly;margin:30px auto;max-width:220px}.death-chance,.shot-count{display:flex;align-items:center;justify-content:center}.death-chance img,.shot-count img{width:24px;height:24px;margin-right:8px;vertical-align:middle}.death-chance span,.shot-count span{font-size:18px;color:#fff;line-height:1}@media (max-width:600px){.death-chance img,.shot-count img{width:20px;height:20px}.death-chance span,.shot-count span{font-size:16px}}.supporters-section{margin-top:20px;padding:20px;font-size:.8em;animation:fadeIn .5s ease-in}.supporter-item{display:flex;margin:10px 0;padding:10px;animation:fadeIn .5s ease-in}.support-icon{width:24px;height:24px;margin-right:10px}.supporter-item span{flex-grow:1;text-align:left}
+body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}.container{text-align:center;max-width:420px;margin:0 auto}.cylinder-wrap{position:relative;width:min(220px,45vmin);height:min(220px,45vmin);margin:0 auto}.cylinder{position:relative;width:100%;height:100%;border-radius:50%;background-color:#444;display:flex;justify-content:center;align-items:center}.cylinder-container{overflow:hidden}.chamber{position:absolute;width:18%;height:18%;border:3px solid #fff;border-radius:50%;background-color:#666;transform:translate(-50%,-50%);box-sizing:border-box}.shot{background-color:red}.chamber:nth-child(1){top:9%;left:50%}.chamber:nth-child(2){top:27%;left:77%}.chamber:nth-child(3){top:73%;left:77%}.chamber:nth-child(4){top:91%;left:50%}.chamber:nth-child(5){top:73%;left:23%}.chamber:nth-child(6){top:27%;left:23%}.cylinder.spin{animation:spin 3s cubic-bezier(.25,1,.05,1.2)}@keyframes spin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}button{position:relative;height:50px;padding:0 30px;border:2px solid #d3a446;background:#222;user-select:none;white-space:nowrap;transition:all .05s linear;color:#d3a446;font-family:inherit;display:flex;align-items:center;justify-content:center;text-align:center}button:after,button:before{content:"";position:absolute;background:#222;transition:all .2s linear}button:before{width:calc(100% + 6px);height:calc(100% - 16px);top:8px;left:-3px}button:after{width:calc(100% - 16px);height:calc(100% + 6px);top:-3px;left:8px}button:hover{cursor:crosshair}button:active{transform:scale(.95)}button:hover:before{height:calc(100% - 32px);top:16px}button:hover:after{width:calc(100% - 32px);left:16px}button span{font-size:35px;z-index:3;position:relative;font-family:Rye,serif}.cylinder-container{width:100%;height:100%;overflow:hidden}.outer-ring{width:18%;height:18%;background-color:#222;border:2px solid #888;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2}.revolver-slot{position:absolute;background-color:#222;width:23%;height:23%;border-radius:100%}.revolver-slot.slot-one{top:-7%;right:9%}.revolver-slot.slot-two{top:-7%;left:9%;z-index:1}.revolver-slot.slot-three{left:-16%;top:50%;transform:translateY(-50%)}.revolver-slot.slot-four{left:9%;bottom:-7%}.revolver-slot.slot-five{right:9%;bottom:-7%}.revolver-slot.slot-six{right:-16%;top:50%;transform:translateY(-50%)}.card-container{display:flex;justify-content:center;margin-bottom:20px}.card{width:100px;height:140px;border:2px solid #fff;border-radius:10px;font-size:60px;font-family:Rye,serif;font-weight:700;display:flex;justify-content:center;align-items:center;background-color:#fff;color:#222;opacity:.9;cursor:pointer;text-align:center;transition:transform 3s ease-in-out,opacity 1s,border-color .5s,box-shadow .5s,background-color .5s,color .5s}.card.selected{border-color:#d3a446;box-shadow:0 0 10px #d3a446;background-color:rgb(211 164 70 / 70%);color:#fff}.card.flip{transform:rotateY(360deg);opacity:1}.divider{border-top:2px solid #888;margin:30px 0;width:100%}#blood-splatter-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;animation:blood-splatter 1s ease-out 2s;display:none;transform:translateZ(0);will-change:transform}.damage-warning{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999;background:radial-gradient(transparent,rgba(255,0,0,.1));display:none}@keyframes damage-flash{0%{opacity:.8}50%{opacity:.6}100%{opacity:.8}}.damage-warning.flash{animation:damage-flash .5s infinite}@keyframes beating{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}.beating{animation:beating .8s infinite;background:radial-gradient(transparent,rgba(255,0,0,.8))}.shot-info{display:flex;flex-direction:row;align-items:center;justify-content:space-evenly;margin:30px auto;max-width:220px}.death-chance,.shot-count{display:flex;align-items:center;justify-content:center}.death-chance img,.shot-count img{width:24px;height:24px;margin-right:8px;vertical-align:middle}.death-chance span,.shot-count span{font-size:18px;color:#fff;line-height:1}@media (max-width:600px){.death-chance img,.shot-count img{width:20px;height:20px}.death-chance span,.shot-count span{font-size:16px}}.supporters-section{margin-top:20px;padding:20px;font-size:.8em;animation:fadeIn .5s ease-in}.supporter-item{display:flex;margin:10px 0;padding:10px;animation:fadeIn .5s ease-in}.support-icon{width:24px;height:24px;margin-right:10px}.supporter-item span{flex-grow:1;text-align:left}
 
 /* Mode tabs - tắt pseudo-elements global của button để chữ không bị che */
-.mode-tabs{display:flex;justify-content:center;gap:0;margin:0 auto 16px;max-width:400px;border-bottom:2px solid #444}
+.mode-tabs{display:flex;justify-content:center;gap:0;margin:0 auto 16px;max-width:400px;border-bottom:1px solid #555;box-shadow:none}
 .mode-tab{flex:1;padding:12px 16px;border:none;border-bottom:3px solid transparent;background:#333;color:#aaa;font-family:inherit;font-size:14px;cursor:pointer;transition:color .2s,border-color .2s,background .2s;position:relative;z-index:1}
 .mode-tab::before,.mode-tab::after{display:none !important}
 .mode-tab:hover{color:#fff;background:#3a3a3a}
 .mode-tab.active{color:#d3a446;border-bottom-color:#d3a446;background:#222}
+.mode-tab:focus-visible,.poker-btn:focus-visible,.poker-btn-reset:focus-visible,button:focus-visible{outline:2px solid #d3a446;outline-offset:2px}
+.deck-mute-btn{position:fixed;top:12px;right:12px;width:40px;height:40px;border:1px solid #555;background:#333;color:#aaa;border-radius:8px;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:100}
+.deck-mute-btn::before,.deck-mute-btn::after{display:none !important}
+.deck-mute-btn:focus-visible{outline:2px solid #d3a446;outline-offset:2px}
+.deck-mute-btn:hover{color:#d3a446;border-color:#666}
+.deck-mute-btn.muted{color:#c93030}
+@media (prefers-reduced-motion:reduce){
+.cylinder.spin,.poker-cylinder-8.poker-cylinder-spin{animation-duration:.4s}
+.poker-result-overlay{animation:none}
+.damage-warning.beating{animation:none}
+.card.flip{transition-duration:.3s}
+}
 
 /* Poker mode */
-.poker-container{text-align:center;padding:16px;max-width:420px;margin:0 auto}
-.poker-title{font-size:1.4rem;margin:0 0 16px;color:#fff}
+.poker-container{text-align:center;padding:16px 16px 16px;max-width:420px;margin:0 auto;overflow-y:auto;min-height:0}
+.poker-title{font-size:1.4rem;margin:8px 0 16px;color:#fff}
 .poker-stage-label{font-size:1.1rem;margin-bottom:12px;color:#d3a446}
 .poker-board-cards{display:flex;justify-content:center;gap:6px;margin:0 auto 16px;flex-wrap:wrap}
 .poker-card-slot{width:52px;height:72px;border-radius:8px;overflow:hidden;border:2px solid #555;flex-shrink:0;background:#1a1a1a}
@@ -22,37 +34,40 @@ body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#ff
 .poker-bullet-dot{width:12px;height:12px;border-radius:50%;background:#444;border:1px solid #666;transition:background .2s}
 .poker-bullet-dot.committed{background:#c93030;border-color:#a00}
 .poker-cylinder-wrap{margin:16px auto;overflow:hidden}
-/* Ảnh phóng to để phủ hết viền trắng (zoom vào ổ đạn), nền #222 trùng trang. center 50% 50% để vùng đen trùng tâm. */
-.poker-cylinder-8{position:relative;width:160px;height:160px;margin:0 auto;border-radius:50%;overflow:hidden;background:#222 url(/assets/img/revolver-8.png) 50% 50%/190% no-repeat;border:none;box-shadow:none}
+/* Cylinder responsive: 40vmin thu nhỏ theo màn hình, max 160px. Ảnh súng 190% scale theo cylinder. */
+.poker-cylinder-8{position:relative;width:min(160px,40vmin);height:min(160px,40vmin);margin:0 auto;border-radius:50%;overflow:hidden;background:#222 url(/assets/img/revolver-8.png) 50% 50%/190% no-repeat;border:none;box-shadow:none}
 .poker-cylinder-8.poker-cylinder-spin{animation:poker-spin 2.5s cubic-bezier(.25,1,.05,1.2) forwards}
 @keyframes poker-spin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}
-/* 8 buồng: tâm lỗ ~50px từ tâm súng (giữa 48–52), translate(-50%,-50%) để đạn vàng đúng giữa từng vòng đen */
-.poker-chamber{position:absolute;width:16px;height:16px;border-radius:50%;background:transparent;border:none;box-sizing:border-box;z-index:2;transform:translate(-50%,-50%)}
+/* 8 buồng: vị trí và kích thước theo % của cylinder (radius ~35%, chéo ~24.75%), translate(-50%,-50%) để đạn đúng giữa vòng đen */
+.poker-chamber{position:absolute;width:10%;height:10%;border-radius:50%;background:transparent;border:none;box-sizing:border-box;z-index:2;transform:translate(-50%,-50%)}
 .poker-chamber.poker-chamber--loaded{background:radial-gradient(circle at 30% 30%,#d4a574,#b8956a 40%,#8b6914 70%);box-shadow:inset 0 0 3px rgba(200,160,100,.45)}
-.poker-chamber:nth-child(1){top:calc(50% - 56px);left:50%}
-.poker-chamber:nth-child(2){top:calc(50% - 40px);left:calc(50% - 40px)}
-.poker-chamber:nth-child(3){top:calc(50% - 40px);left:calc(50% + 40px)}
-.poker-chamber:nth-child(4){top:50%;left:calc(50% - 56px)}
-.poker-chamber:nth-child(5){top:50%;left:calc(50% + 56px)}
-.poker-chamber:nth-child(6){top:calc(50% + 40px);left:calc(50% - 40px)}
-.poker-chamber:nth-child(7){top:calc(50% + 40px);left:calc(50% + 40px)}
-.poker-chamber:nth-child(8){top:calc(50% + 56px);left:50%}
-/* Black zone: center by transform so it aligns with cylinder image center */
-.poker-cylinder-center{position:absolute;top:50%;left:50%;width:22px;height:22px;transform:translate(-50%,-50%);background:#222;border:1px solid #555;border-radius:50%;z-index:3}
+/* Vị trí 8 buồng theo chiều kim đồng hồ: (1)=12h, (2)=1:30, (3)=3h, (4)=4:30, (5)=6h, (6)=7:30, (7)=9h, (8)=10:30 */
+.poker-chamber:nth-child(1){top:15%;left:50%}
+.poker-chamber:nth-child(2){top:25.25%;left:74.75%}
+.poker-chamber:nth-child(3){top:50%;left:85%}
+.poker-chamber:nth-child(4){top:74.75%;left:74.75%}
+.poker-chamber:nth-child(5){top:85%;left:50%}
+.poker-chamber:nth-child(6){top:74.75%;left:25.25%}
+.poker-chamber:nth-child(7){top:50%;left:15%}
+.poker-chamber:nth-child(8){top:25.25%;left:25.25%}
+/* Vùng đen giữa: 13.75% cylinder */
+.poker-cylinder-center{position:absolute;top:50%;left:50%;width:13.75%;height:13.75%;transform:translate(-50%,-50%);background:#222;border:1px solid #555;border-radius:50%;z-index:3}
 .poker-shot-info{display:flex;flex-direction:column;gap:4px;margin:12px 0;font-size:14px;color:#aaa}
-.poker-last-shot--alive{color:#6a9e6a}
-.poker-last-shot--dead{color:#c93030;font-weight:700}
-.poker-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0}
-.poker-btn{position:relative;height:48px;padding:0 24px;border:2px solid #d3a446;background:#222;color:#d3a446;font-family:inherit;font-size:16px;cursor:pointer;transition:transform .05s,opacity .2s;z-index:1}
-.poker-btn::before,.poker-btn::after{display:none !important}
+/* Poker: dùng cùng khung góc (::before/::after) như nút FIRE, chữ nổi trên khung nhờ span z-index */
+.poker-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0;flex-shrink:0}
+.poker-btn{position:relative;height:42px;padding:0 20px;border:2px solid #d3a446;background:#222;color:#d3a446;font-family:inherit;font-size:15px;cursor:pointer;transition:transform .05s,opacity .2s;z-index:1;display:flex;align-items:center;justify-content:center}
+.poker-btn span{position:relative;z-index:3}
 .poker-btn:hover:not(:disabled){opacity:1;transform:scale(1.02)}
 .poker-btn:disabled{opacity:.5;cursor:not-allowed}
 .poker-btn-call{border-color:#6a9e6a;color:#6a9e6a}
 .poker-btn-fold{border-color:#c93030;color:#c93030}
 .poker-btn-allin{border-color:#d3a446;color:#d3a446}
-.poker-btn-reset{margin-top:8px;padding:8px 16px;font-size:12px;border:1px solid #666;background:transparent;color:#888;cursor:pointer;font-family:inherit;z-index:1}
-.poker-btn-reset::before,.poker-btn-reset::after{display:none !important}
+.poker-btn-reset{margin-top:8px;padding:6px 14px;font-size:11px;border:2px solid #666;background:#222;color:#888;cursor:pointer;font-family:inherit;z-index:1;flex-shrink:0}
+.poker-btn-reset span{position:relative;z-index:3}
 .poker-btn-reset:hover:not(:disabled){color:#aaa}
+/* Khi có thông báo sống/chết: làm nổi bật nút Reset để player focus */
+.poker-btn-reset.poker-btn-reset--prominent{border-color:#d3a446;color:#d3a446;background:rgba(211,164,70,.15);box-shadow:0 0 20px rgba(211,164,70,.5);font-size:13px;padding:8px 18px}
+.poker-btn-reset.poker-btn-reset--prominent:hover:not(:disabled){color:#fff;box-shadow:0 0 24px rgba(211,164,70,.7)}
 
 .poker-bullet-icon{width:24px;height:24px;object-fit:contain;transition:opacity .2s,filter .2s}
 .poker-bullet-icon:not(.committed){opacity:.5}
@@ -65,22 +80,45 @@ body{font-family:"Averia Serif Libre",sans-serif;background-color:#222;color:#ff
 
 #poker-blood-container{position:fixed;inset:0;pointer-events:none;z-index:2;display:none}
 
-body.has-mode-tabs{padding-top:8px;align-items:flex-start;padding-bottom:24px}
+body.has-mode-tabs{padding-top:8px;align-items:flex-start;padding-bottom:24px;flex-direction:column}
+body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:100%}
+.app-credit{flex-shrink:0;text-align:center;font-size:12px;color:#666;padding:12px 16px;margin-top:auto}
+.mode-content{flex:1;display:flex;flex-direction:column;min-height:0}
+.mode-content>.container,.poker-container{flex:1;display:flex;flex-direction:column;min-height:0}
+.poker-container{justify-content:flex-start}
+/* Deck mode: layout title → space → card → space → line → space → gun → space → rate → FIRE, space = nửa lá bài */
+.mode-content>.container{--deck-gap:18px;justify-content:flex-start;padding:0 16px;padding-top:var(--deck-gap);overflow:hidden;align-items:center}
+.mode-content>.container .card-container{flex:0 0 auto;margin:0 0 var(--deck-gap)}
+.mode-content>.container .divider{flex:0 0 auto;margin:var(--deck-gap) 0}
+.deck-gun-block{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;margin:0;width:100%}
+.deck-gun-block .cylinder-wrap{margin:0 0 var(--deck-gap);flex:0 0 auto;aspect-ratio:1;width:min(260px,52vmin);height:min(260px,52vmin)}
+.deck-shot-info{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:24px;margin:0;max-width:220px;flex:0 0 auto}
+.deck-shot-info .death-chance,.deck-shot-info .shot-count{display:flex;align-items:center;justify-content:center;gap:6px}
+.deck-shot-info .death-chance img,.deck-shot-info .shot-count img{width:22px;height:22px}
+.deck-shot-info .death-chance span,.deck-shot-info .shot-count span{font-size:16px;color:#fff}
+.deck-actions{display:flex;justify-content:center;align-items:center;flex:0 0 auto;margin-top:var(--deck-gap);padding-bottom:var(--deck-gap)}
+.deck-actions button{max-width:280px}
+@media (max-width:600px){
+.mode-content{overflow:hidden}
+.mode-content>.container{--deck-gap:12vmin;padding:0 12px;padding-top:var(--deck-gap);overflow:hidden}
+.mode-content>.container .card-container{margin:0 0 var(--deck-gap)}
+.mode-content>.container .card{width:20vmin;height:26vmin;font-size:7.5vmin;max-width:92px;max-height:118px}
+.mode-content>.container .divider{margin:var(--deck-gap) 0}
+.deck-gun-block .cylinder-wrap{width:min(34vmin,170px);height:min(34vmin,170px);margin:0 0 var(--deck-gap)}
+.deck-shot-info{gap:14px}
+.deck-shot-info .death-chance img,.deck-shot-info .shot-count img{width:18px;height:18px}
+.deck-shot-info .death-chance span,.deck-shot-info .shot-count span{font-size:13px}
+.deck-actions{margin-top:var(--deck-gap);padding-bottom:var(--deck-gap)}
+.deck-actions button{font-size:0.95rem;padding:10px 20px}
+}
+.deck-result-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:24px 48px;border-radius:12px;font-size:1.2rem;font-weight:700;pointer-events:none;background:rgba(80,20,20,.95);color:#ff8888;border:2px solid #c93030}
+.deck-hint,.poker-hint{padding:10px 14px;margin:0 auto 12px;max-width:360px;background:#2a2a2a;border:1px solid #555;border-radius:8px;font-size:13px;color:#aaa;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.deck-hint button,.poker-hint button{flex-shrink:0;padding:4px 10px;font-size:12px;border:1px solid #666;background:#333;color:#888;cursor:pointer;border-radius:4px}
+.deck-hint button:hover,.poker-hint button:hover{color:#fff}
 
 @media (max-width:600px){
 .poker-board-cards{gap:4px}
 .poker-card-slot{width:42px;height:60px}
-.poker-cylinder-8{width:140px;height:140px;background-size:145%}
-.poker-chamber{width:14px;height:14px}
-.poker-chamber:nth-child(1){top:calc(50% - 44px);left:50%}
-.poker-chamber:nth-child(2){top:calc(50% - 31px);left:calc(50% - 31px)}
-.poker-chamber:nth-child(3){top:calc(50% - 31px);left:calc(50% + 31px)}
-.poker-chamber:nth-child(4){top:50%;left:calc(50% - 44px)}
-.poker-chamber:nth-child(5){top:50%;left:calc(50% + 44px)}
-.poker-chamber:nth-child(6){top:calc(50% + 31px);left:calc(50% - 31px)}
-.poker-chamber:nth-child(7){top:calc(50% + 31px);left:calc(50% + 31px)}
-.poker-chamber:nth-child(8){top:calc(50% + 44px);left:50%}
-.poker-cylinder-center{width:18px;height:18px}
 .poker-actions{gap:8px}
-.poker-btn{height:44px;padding:0 18px;font-size:14px}
+.poker-btn{height:38px;padding:0 16px;font-size:13px}
 } 
