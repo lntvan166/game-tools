@@ -3,14 +3,18 @@ body.shake-on-death{animation:shake-on-death .45s ease-out}
 @media (prefers-reduced-motion:reduce){body.shake-on-death{animation:none}}
 @keyframes damage-flash{0%{opacity:.8}50%{opacity:.6}100%{opacity:.8}}.damage-warning.flash{animation:damage-flash .5s infinite}@keyframes beating{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}.beating{animation:beating .8s infinite;background:radial-gradient(transparent,rgba(255,0,0,.8))}.shot-info{display:flex;flex-direction:row;align-items:center;justify-content:space-evenly;margin:30px auto;max-width:220px}.death-chance,.shot-count{display:flex;align-items:center;justify-content:center}.death-chance img,.shot-count img{width:24px;height:24px;margin-right:8px;vertical-align:middle}.death-chance span,.shot-count span{font-size:18px;color:#fff;line-height:1}@media (max-width:600px){.death-chance img,.shot-count img{width:20px;height:20px}.death-chance span,.shot-count span{font-size:16px}}.supporters-section{margin-top:20px;padding:20px;font-size:.8em;animation:fadeIn .5s ease-in}.supporter-item{display:flex;margin:10px 0;padding:10px;animation:fadeIn .5s ease-in}.support-icon{width:24px;height:24px;margin-right:10px}.supporter-item span{flex-grow:1;text-align:left}
 
-/* Mode tabs - tắt pseudo-elements global của button để chữ không bị che */
-.mode-tabs{display:flex;justify-content:center;gap:0;margin:0 auto 16px;max-width:400px;border-bottom:1px solid #555;box-shadow:none}
+/* Mode tabs - disable global button pseudo-elements so text is visible */
+.mode-tabs{display:flex;justify-content:center;gap:0;margin:0 auto 16px;max-width:480px;border-bottom:1px solid #555;box-shadow:none}
 .mode-tab{flex:1;padding:12px 16px;border:none;border-bottom:3px solid transparent;background:#333;color:#aaa;font-family:inherit;font-size:14px;cursor:pointer;transition:color .2s,border-color .2s,background .2s;position:relative;z-index:1}
 .mode-tab::before,.mode-tab::after{display:none !important}
 .mode-tab:hover{color:#fff;background:#3a3a3a}
 .mode-tab.active{color:#d3a446;border-bottom-color:#d3a446;background:#222}
 .mode-tab:focus-visible,.poker-btn:focus-visible,.poker-btn-reset:focus-visible,button:focus-visible{outline:2px solid #d3a446;outline-offset:2px}
-.deck-mute-btn{position:fixed;top:12px;right:12px;width:40px;height:40px;border:1px solid #555;background:#333;color:#aaa;border-radius:8px;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;z-index:100}
+.deck-top-right{position:fixed;top:12px;right:12px;display:flex;align-items:center;gap:8px;z-index:100}
+.deck-github-btn{width:40px;height:40px;border:1px solid #555;background:#333;color:#aaa;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:color .2s,border-color .2s}
+.deck-github-btn:hover{color:#fff;border-color:#666}
+.deck-github-btn:focus-visible{outline:2px solid #d3a446;outline-offset:2px}
+.deck-mute-btn{width:40px;height:40px;border:1px solid #555;background:#333;color:#aaa;border-radius:8px;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center}
 .deck-mute-btn::before,.deck-mute-btn::after{display:none !important}
 .deck-mute-btn:focus-visible{outline:2px solid #d3a446;outline-offset:2px}
 .deck-mute-btn:hover{color:#d3a446;border-color:#666}
@@ -53,7 +57,7 @@ body.shake-on-death{animation:shake-on-death .45s ease-out}
 .poker-card-slot-face--back{transform:rotateY(0)}
 .poker-card-slot-face--front{transform:rotateY(180deg)}
 .poker-card-img{width:100%;height:100%;object-fit:cover;display:block;object-position:center}
-/* Cắt bớt viền trắng quanh ảnh bài – scale lên để overflow:hidden cắt mép */
+/* Crop white border around card images – scale up so overflow:hidden clips edges */
 .poker-card-slot-face .poker-card-img{transform:scale(1.12);transform-origin:center}
 .poker-bullet-track{margin-bottom:16px}
 .poker-bullets-label{display:block;font-size:14px;margin-bottom:6px;color:#ccc}
@@ -61,14 +65,14 @@ body.shake-on-death{animation:shake-on-death .45s ease-out}
 .poker-bullet-dot{width:12px;height:12px;border-radius:50%;background:#444;border:1px solid #666;transition:background .2s}
 .poker-bullet-dot.committed{background:#c93030;border-color:#a00}
 .poker-cylinder-wrap{margin:16px auto;overflow:hidden}
-/* Cylinder responsive: 40vmin thu nhỏ theo màn hình, max 160px. Ảnh súng 190% scale theo cylinder. */
+/* Cylinder responsive: 40vmin scales with viewport, max 160px. Gun image 190% scale relative to cylinder. */
 .poker-cylinder-8{position:relative;width:min(160px,40vmin);height:min(160px,40vmin);margin:0 auto;border-radius:50%;overflow:hidden;background:#222 url(/assets/img/revolver-8.png) 50% 50%/190% no-repeat;border:none;box-shadow:none}
 .poker-cylinder-8.poker-cylinder-spin{animation:poker-spin 2.5s cubic-bezier(.25,1,.05,1.2) forwards}
 @keyframes poker-spin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}
-/* 8 buồng: vị trí và kích thước theo % của cylinder (radius ~35%, chéo ~24.75%), translate(-50%,-50%) để đạn đúng giữa vòng đen */
+/* 8 chambers: position and size as % of cylinder (radius ~35%, diagonal ~24.75%), translate(-50%,-50%) to center bullet in dark ring */
 .poker-chamber{position:absolute;width:10%;height:10%;border-radius:50%;background:transparent;border:none;box-sizing:border-box;z-index:2;transform:translate(-50%,-50%)}
 .poker-chamber.poker-chamber--loaded{background:radial-gradient(circle at 30% 30%,#c9a962,#a67c3d 35%,#6b4e1a 70%);box-shadow:inset 0 0 3px rgba(180,140,80,.4)}
-/* Vị trí 8 buồng theo chiều kim đồng hồ: (1)=12h, (2)=1:30, (3)=3h, (4)=4:30, (5)=6h, (6)=7:30, (7)=9h, (8)=10:30 */
+/* 8 chamber positions clockwise: (1)=12h, (2)=1:30, (3)=3h, (4)=4:30, (5)=6h, (6)=7:30, (7)=9h, (8)=10:30 */
 .poker-chamber:nth-child(1){top:15%;left:50%}
 .poker-chamber:nth-child(2){top:25.25%;left:74.75%}
 .poker-chamber:nth-child(3){top:50%;left:85%}
@@ -77,13 +81,13 @@ body.shake-on-death{animation:shake-on-death .45s ease-out}
 .poker-chamber:nth-child(6){top:74.75%;left:25.25%}
 .poker-chamber:nth-child(7){top:50%;left:15%}
 .poker-chamber:nth-child(8){top:25.25%;left:25.25%}
-/* Vùng đen giữa: 13.75% cylinder */
+/* Center dark area: 13.75% of cylinder */
 .poker-cylinder-center{position:absolute;top:50%;left:50%;width:13.75%;height:13.75%;transform:translate(-50%,-50%);background:#222;border:1px solid #555;border-radius:50%;z-index:3}
 .poker-shot-info{display:flex;flex-direction:column;gap:4px;margin:12px 0;font-size:14px;color:#aaa}
 .poker-shot-info .death-chance{display:flex;align-items:center;justify-content:center;gap:6px}
 .poker-shot-info .death-chance img{width:22px;height:22px}
 .poker-shot-info .death-chance span{font-size:16px;color:#fff}
-/* Poker: dùng cùng khung góc (::before/::after) như nút FIRE, chữ nổi trên khung nhờ span z-index */
+/* Poker: use same corner frame (::before/::after) as FIRE button, text above frame via span z-index */
 .poker-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px 0;flex-shrink:0}
 .poker-btn{position:relative;height:42px;padding:0 20px;border:2px solid #d3a446;background:#222;color:#d3a446;font-family:inherit;font-size:15px;cursor:pointer;transition:transform .05s,opacity .2s;z-index:1;display:flex;align-items:center;justify-content:center}
 .poker-btn span{position:relative;z-index:3}
@@ -95,7 +99,7 @@ body.shake-on-death{animation:shake-on-death .45s ease-out}
 .poker-btn-reset{margin-top:8px;padding:6px 14px;font-size:11px;border:2px solid #666;background:#222;color:#888;cursor:pointer;font-family:inherit;z-index:1;flex-shrink:0}
 .poker-btn-reset span{position:relative;z-index:3}
 .poker-btn-reset:hover:not(:disabled){color:#aaa}
-/* Khi có thông báo sống/chết: làm nổi bật nút Reset để player focus */
+/* When alive/dead notification shown: highlight Reset button for player focus */
 .poker-btn-reset.poker-btn-reset--prominent{border-color:#d3a446;color:#d3a446;background:rgba(211,164,70,.15);box-shadow:0 0 20px rgba(211,164,70,.5);font-size:13px;padding:8px 18px}
 .poker-btn-reset.poker-btn-reset--prominent:hover:not(:disabled){color:#fff;box-shadow:0 0 24px rgba(211,164,70,.7)}
 
@@ -125,16 +129,16 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 @media (prefers-reduced-motion:reduce){.mode-content-inner{animation:none}}
 .mode-content>.container,.poker-container{flex:1;display:flex;flex-direction:column;min-height:0}
 .poker-container{justify-content:flex-start}
-/* Deck mode: layout title → space → card → space → line → space → gun → space → rate → FIRE, space = nửa lá bài */
+/* Deck mode: layout title → space → card → space → line → space → gun → space → rate → FIRE, space = half card height */
 .mode-content>.container{--deck-gap:18px;justify-content:flex-start;padding:0 16px;padding-top:var(--deck-gap);overflow:hidden;align-items:center}
 .mode-content>.container .card-container{flex:0 0 auto;margin:0 0 var(--deck-gap)}
 .mode-content>.container .divider{flex:0 0 auto;margin:var(--deck-gap) 0}
 .deck-gun-block{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;margin:0;width:100%}
 .deck-gun-block .cylinder-wrap{margin:0 0 var(--deck-gap);flex:0 0 auto;aspect-ratio:1;width:min(260px,52vmin);height:min(260px,52vmin)}
-/* Ổ đạn Deck: loaded = không viền, xám sáng; empty/fired = viền trắng, xám đậm */
+/* Deck cylinder: loaded = no border, light gray; empty/fired = white border, dark gray */
 .deck-gun-block .chamber{border:2px solid transparent;background:#777;box-shadow:inset 0 0 4px rgba(0,0,0,.3)}
 .deck-gun-block .chamber.shot{border-color:#fff;background:#444;box-shadow:none}
-/* Vị trí 6 lỗ đạn đều trên vòng tròn (60° mỗi lỗ), radius ~38% */
+/* 6 chamber positions evenly on circle (60° each), radius ~38% */
 .deck-gun-block .chamber:nth-child(1){top:12%;left:50%}
 .deck-gun-block .chamber:nth-child(2){top:31%;left:83%}
 .deck-gun-block .chamber:nth-child(3){top:69%;left:83%}
@@ -172,4 +176,120 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .poker-card-slot{width:42px;height:60px}
 .poker-actions{gap:8px}
 .poker-btn{height:38px;padding:0 16px;font-size:13px}
-} 
+}
+
+/* Card Score mode */
+.score-tracking{flex:1;display:flex;flex-direction:column;min-height:0;max-width:420px;margin:0 auto;width:100%;padding:0 16px}
+.score-sub-tabs{display:flex;justify-content:center;gap:0;margin-bottom:12px;border-bottom:1px solid #555}
+.score-sub-tab{padding:8px 14px;border:none;border-bottom:2px solid transparent;background:transparent;color:#aaa;font-family:inherit;font-size:13px;cursor:pointer;transition:color .2s,border-color .2s}
+.score-sub-tab::before,.score-sub-tab::after{display:none !important}
+.score-sub-tab:hover{color:#fff}
+.score-sub-tab.active{color:#d3a446;border-bottom-color:#d3a446}
+.score-content{flex:1;overflow-y:auto;min-height:0}
+.tienlen-score{display:flex;flex-direction:column;gap:16px;padding-bottom:24px}
+.score-header{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.score-btn{padding:8px 16px;font-size:14px;border:2px solid #666;background:#222;color:#aaa;font-family:inherit;cursor:pointer;border-radius:6px;transition:color .2s,border-color .2s}
+.score-btn::before,.score-btn::after{display:none !important}
+.score-btn:hover{color:#fff;border-color:#888}
+.score-btn-primary{border-color:#d3a446;color:#d3a446}
+.score-btn-primary:hover{color:#fff;border-color:#d3a446;background:rgba(211,164,70,.15)}
+.score-btn-secondary{border-color:#555;color:#888}
+.score-add-round-btn{margin-top:8px;width:100%;max-width:200px;margin-left:auto;margin-right:auto;display:block}
+.scoreboard{background:#2a2a2a;border:1px solid #555;border-radius:8px;padding:16px;overflow-x:auto}
+.scoreboard-title{font-size:1.1rem;margin:0 0 12px;color:#d3a446}
+.scoreboard-table{width:100%;border-collapse:collapse}
+.scoreboard-table th,.scoreboard-table td{padding:8px 12px;text-align:left;border-bottom:1px solid #444}
+.scoreboard-table th{color:#888;font-weight:600;font-size:13px}
+.scoreboard-table td{color:#fff}
+.scoreboard-value{font-weight:700;color:#d3a446}
+.score-round-history{margin-top:16px;background:#2a2a2a;border:1px solid #555;border-radius:8px;padding:16px;max-height:240px;overflow-y:auto}
+.score-round-table-wrap{overflow-x:auto}
+.score-round-table{width:100%;border-collapse:collapse}
+.score-round-table th,.score-round-table td{padding:6px 10px;text-align:left;border-bottom:1px solid #444;font-size:13px}
+.score-round-table th{color:#888;font-weight:600}
+.score-round-table td{color:#fff}
+.score-round-table-row{cursor:pointer;transition:background .15s}
+.score-round-table-row:hover{background:#333}
+.score-round-table-actions{width:72px;padding:4px;vertical-align:middle}
+.score-round-table-actions .score-round-actions-wrap{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:6px}
+.score-round-table-actions button::before,.score-round-table-actions button::after{display:none !important}
+.score-round-num{font-weight:600;color:#d3a446;width:32px}
+.score-round-point{font-weight:500;color:#fff}
+.score-round-point:has(+ .score-round-point),.score-round-point:first-of-type{color:#aaa}
+.score-round-detail-points{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.score-round-detail-row{display:flex;justify-content:space-between;gap:12px}
+.score-round-detail-summary{margin-bottom:16px}
+.score-round-detail-blocks{display:flex;flex-direction:column;gap:12px}
+.score-round-detail-block{display:flex;flex-direction:column;gap:4px}
+.score-round-detail-label{font-size:12px;color:#888;font-weight:600;text-transform:uppercase}
+.score-round-detail-list{list-style:none;margin:0;padding:0;font-size:14px;color:#ccc}
+.score-round-detail-list li{margin:2px 0}
+.score-round-detail-stuck{font-size:13px;color:#aaa;margin-top:2px}
+.score-round-edit{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:1px solid #555;background:#333;color:#aaa;cursor:pointer;border-radius:4px;flex-shrink:0}
+.score-round-edit svg{display:block}
+.score-round-edit:hover{color:#d3a446;border-color:#666}
+.score-round-remove{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:1px solid #555;background:#333;color:#aaa;cursor:pointer;border-radius:4px;font-size:18px;line-height:1;flex-shrink:0}
+.score-round-remove:hover{color:#fff;border-color:#666}
+.tienlen-new-game{background:#2a2a2a;border:1px solid #555;border-radius:8px;padding:20px;max-width:320px;margin:0 auto}
+.score-new-game-hint{color:#888;font-size:13px;margin:0 0 16px}
+.score-new-game-player-count{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.score-new-game-player-count span{color:#888;font-size:14px}
+.score-player-count-btn{padding:6px 14px;font-size:14px}
+.score-player-count-btn.active{border-color:#d3a446;color:#d3a446;background:rgba(211,164,70,.15)}
+.score-new-game-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.score-new-game-form{display:flex;flex-direction:column;gap:12px}
+.score-new-game-label{display:flex;flex-direction:column;gap:4px;color:#aaa;font-size:14px}
+.score-input{padding:8px 12px;border:1px solid #555;background:#222;color:#fff;font-family:inherit;font-size:14px;border-radius:6px}
+.score-input:focus{outline:2px solid #d3a446;outline-offset:1px}
+.score-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.score-modal{background:#2a2a2a;border:1px solid #555;border-radius:12px;padding:20px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto}
+.score-modal-title{font-size:1.2rem;margin:0 0 16px;color:#d3a446}
+.score-modal-section{margin-bottom:20px}
+.score-modal-section h3{font-size:14px;color:#aaa;margin:0 0 10px;font-weight:600}
+.score-order-list{display:flex;flex-direction:column;gap:6px}
+.score-order-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#333;border:1px solid #555;border-radius:6px;cursor:grab}
+.score-order-item:active{cursor:grabbing}
+.score-order-rank{width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:#444;border-radius:50%;font-size:12px;font-weight:700;color:#d3a446;flex-shrink:0}
+.score-order-name{flex:1;color:#fff}
+.score-order-buttons{display:flex;gap:4px}
+.score-order-buttons button{padding:4px 8px;border:1px solid #555;background:#222;color:#aaa;cursor:pointer;border-radius:4px;font-size:12px}
+.score-order-buttons button::before,.score-order-buttons button::after{display:none !important}
+.score-order-buttons button:hover:not(:disabled){color:#fff}
+.score-order-buttons button:disabled{opacity:.4;cursor:not-allowed}
+.score-checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;color:#aaa;font-size:14px}
+.score-checkbox-row input{width:auto}
+.score-custom-point-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.score-custom-point-row span{min-width:80px;color:#aaa}
+.score-custom-point-row .score-input{width:80px}
+.score-ruc-select{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.score-ruc-select label{color:#aaa;font-size:14px}
+.score-ruc-hint{font-size:12px;color:#888;margin:0 0 8px}
+.score-ruc-badge{font-size:11px;background:#555;color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px}
+.score-catch-block{background:#333;border:1px solid #555;border-radius:6px;padding:10px;margin-bottom:10px}
+.score-catch-catcher{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.score-catch-victim-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;margin-left:20px}
+.score-catch-actions{display:flex;gap:8px;margin-top:8px;margin-left:20px}
+.score-catch-actions button::before,.score-catch-actions button::after{display:none !important}
+.score-catch-item-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;margin-left:20px}
+.score-catch-item-row .score-qty-input{width:60px}
+.score-catch-btn{padding:4px 10px;border:1px solid #555;background:#333;color:#aaa;cursor:pointer;border-radius:4px;font-size:12px}
+.score-catch-btn::before,.score-catch-btn::after{display:none !important}
+.score-round-remove::before,.score-round-remove::after{display:none !important}
+.score-round-remove{padding:4px 8px;min-width:auto;font-size:18px;line-height:1}
+.score-reset-hint{color:#aaa;font-size:14px;margin:0 0 16px}
+.score-catch-row,.score-last-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.score-catch-row select,.score-last-row select{padding:6px 10px;border:1px solid #555;background:#222;color:#fff;font-family:inherit;font-size:13px;border-radius:4px;min-width:0}
+.score-catch-row button,.score-last-row button{padding:4px 10px;border:1px solid #555;background:#333;color:#aaa;cursor:pointer;border-radius:4px;flex-shrink:0}
+.score-catch-row button::before,.score-catch-row button::after,.score-last-row button::before,.score-last-row button::after{display:none !important}
+.score-add-btn{padding:6px 12px;border:1px dashed #555;background:transparent;color:#888;font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;margin-top:4px}
+.score-add-btn::before,.score-add-btn::after{display:none !important}
+.score-add-btn:hover{color:#aaa;border-color:#666}
+.score-config-section{margin-bottom:20px}
+.score-config-section-title{font-size:14px;color:#d3a446;margin:0 0 10px;font-weight:600}
+.score-config-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.score-config-grid label{display:flex;flex-direction:column;gap:4px;color:#aaa;font-size:13px}
+.score-config-grid .score-input{width:100%;box-sizing:border-box}
+.score-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.score-modal-actions button::before,.score-modal-actions button::after{display:none !important}
+.tienlen-new-game button::before,.tienlen-new-game button::after{display:none !important}
+.score-new-game-modal button::before,.score-new-game-modal button::after{display:none !important} 
