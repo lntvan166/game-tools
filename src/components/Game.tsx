@@ -3,8 +3,13 @@ import '../styles/site.css';
 
 const totalChambers = 6;
 const cardOptions = ['A', 'K', 'Q'];
+const DECK_HINT_KEY = 'liarbar-deck-hint-dismissed';
 
-const Game: React.FC = () => {
+interface GameProps {
+  muted: boolean;
+}
+
+const Game: React.FC<GameProps> = ({ muted }) => {
   const [card, setCard] = useState<string>('A');
   const [isFlipping, setIsFlipping] = useState<boolean>(false);
   const shuffleInterval = useRef<number | undefined>(undefined);
@@ -14,6 +19,7 @@ const Game: React.FC = () => {
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
   const [splatters, setSplatters] = useState<{ id: number; src: string; style: React.CSSProperties }[]>([]);
+  const [hintDismissed, setHintDismissed] = useState<boolean>(() => localStorage.getItem(DECK_HINT_KEY) === '1');
 
   const cylinderRef = useRef<HTMLDivElement>(null);
   const damageOverlayRef = useRef<HTMLDivElement>(null);
@@ -25,41 +31,32 @@ const Game: React.FC = () => {
   const emptyClickSoundRef = useRef<HTMLAudioElement>(null);
   const spinSoundRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    updateCylinder();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const remaining = totalChambers - shotsTaken;
+  const deathChancePct = remaining > 0 ? (100 / remaining).toFixed(2) : '100';
+  const chamberOrder = [0, 5, 1, 4, 2, 3];
 
   useEffect(() => {
-    updateCylinder();
-  }, [shotsTaken, isGameOver]);
-
-  const updateCylinder = () => {
-    for (let i = 0; i < totalChambers; i++) {
-      const chamberEl = document.getElementById(`chamber${i}`);
-      if (chamberEl) {
-        if (i < shotsTaken) chamberEl.classList.add('shot');
-        else chamberEl.classList.remove('shot');
-      }
-    }
-    const remaining = totalChambers - shotsTaken;
-    const chanceEl = document.getElementById('deathChance');
-    if (chanceEl) chanceEl.textContent = `${remaining > 0 ? (100 / remaining).toFixed(2) : '100'}%`;
+    const overlay = damageOverlayRef.current;
+    if (!overlay) return;
     if (isGameOver) {
-      damageOverlayRef.current?.classList.remove('beating');
+      overlay.style.display = 'block';
+      overlay.classList.remove('beating');
     } else if (remaining === 1) {
-      if (damageOverlayRef.current) damageOverlayRef.current.style.display = 'block';
-      damageOverlayRef.current?.classList.add('beating');
+      overlay.style.display = 'block';
+      overlay.classList.add('beating');
+    } else {
+      overlay.style.display = 'none';
+      overlay.classList.remove('beating');
     }
-  };
+  }, [isGameOver, remaining]);
 
   const clearSplatters = () => setSplatters([]);
 
   const generateSplatters = () => {
-    const count = 8 + Math.floor(Math.random() * 2); // 8 or 9
+    const count = 8 + Math.floor(Math.random() * 2);
     const images = ['splatt1.svg', 'splatt2.svg', 'splatt3.svg'];
     const newSplatters = Array.from({ length: count }, (_, i) => {
-      const size = 80 + Math.floor(Math.random() * 120); // 80px to 200px
+      const size = 80 + Math.floor(Math.random() * 120);
       const left = Math.random() * 100;
       const top = Math.random() * 100;
       const rotate = Math.random() * 360;
@@ -88,13 +85,15 @@ const Game: React.FC = () => {
     setShotsTaken(0);
     setIsGameOver(false);
     bulletPositionRef.current = Math.floor(Math.random() * totalChambers);
-    if (damageOverlayRef.current) damageOverlayRef.current.style.display = 'none';
-    damageOverlayRef.current?.classList.remove('beating');
     if (bloodContainerRef.current) bloodContainerRef.current.style.display = 'none';
-    const btnSpan = document.querySelector('#pullTriggerBtn span');
-    if (btnSpan) btnSpan.textContent = 'FIRE';
-    updateCylinder();
     clearSplatters();
+  };
+
+  const play = (ref: React.RefObject<HTMLAudioElement | null>) => {
+    if (muted || !ref.current) return;
+    ref.current.pause();
+    ref.current.currentTime = 0;
+    ref.current.play();
   };
 
   const handleCardClick = () => {
@@ -107,7 +106,7 @@ const Game: React.FC = () => {
       if (cardEl) cardEl.textContent = val;
     }, 100);
     cardEl?.classList.add('flip');
-    clickSoundRef.current?.play();
+    play(clickSoundRef);
     setTimeout(() => {
       clearInterval(shuffleInterval.current);
       const val = options[Math.floor(Math.random() * options.length)];
@@ -116,14 +115,14 @@ const Game: React.FC = () => {
         cardEl.textContent = val;
         cardEl.classList.add('selected');
       }
-      chimeSoundRef.current?.play();
+      play(chimeSoundRef);
       setTimeout(() => {
         const utterance = new SpeechSynthesisUtterance(
           val === 'Q' ? 'Queen' : val === 'K' ? 'King' : 'Ace'
         );
         utterance.lang = 'en-US';
         utterance.rate = 0.5;
-        window.speechSynthesis.speak(utterance);
+        if (!muted) window.speechSynthesis.speak(utterance);
       }, 300);
       setTimeout(() => {
         if (cardEl) {
@@ -141,11 +140,7 @@ const Game: React.FC = () => {
       resetGame();
       return;
     }
-    if (spinSoundRef.current) {
-      spinSoundRef.current.pause();
-      spinSoundRef.current.currentTime = 0;
-      spinSoundRef.current.play();
-    }
+    play(spinSoundRef);
     setIsSpinning(true);
     setIsButtonDisabled(true);
     setTimeout(() => {
@@ -153,79 +148,93 @@ const Game: React.FC = () => {
       const currentShots = shotsTaken;
       setShotsTaken(currentShots + 1);
       if (bulletPositionRef.current === currentShots) {
-        if (gunshotSoundRef.current) {
-          gunshotSoundRef.current.pause();
-          gunshotSoundRef.current.currentTime = 0;
-          gunshotSoundRef.current.play();
-        }
+        play(gunshotSoundRef);
         setIsGameOver(true);
         if (bloodContainerRef.current) bloodContainerRef.current.style.display = 'block';
-        if (damageOverlayRef.current) damageOverlayRef.current.style.display = 'block';
-        damageOverlayRef.current?.classList.remove('beating');
-        const btnSpan = document.querySelector('#pullTriggerBtn span');
-        if (btnSpan) btnSpan.textContent = 'RESET';
         generateSplatters();
       } else {
-        if (emptyClickSoundRef.current) {
-          emptyClickSoundRef.current.pause();
-          emptyClickSoundRef.current.currentTime = 0;
-          emptyClickSoundRef.current.play();
-        }
+        play(emptyClickSoundRef);
       }
       setIsButtonDisabled(false);
     }, 3000);
   };
 
+  const dismissHint = () => {
+    setHintDismissed(true);
+    localStorage.setItem(DECK_HINT_KEY, '1');
+  };
+
   return (
     <>
       <div className="container">
-        <h1>Liar's Bar Russian Roulette Simulation</h1>
+        {!hintDismissed && (
+          <div className="deck-hint" role="status">
+            <span>Pick a card, then FIRE.</span>
+            <button type="button" onClick={dismissHint} aria-label="Dismiss hint">
+              OK
+            </button>
+          </div>
+        )}
         <div className="card-container">
-          <div className="card" id="card" onClick={handleCardClick}>
+          <div className="card" id="card" onClick={handleCardClick} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(); } }} aria-label="Pick a card">
             {card}
           </div>
         </div>
-        <div className="divider"></div>
-        <div className="cylinder-container">
-          <div className={`cylinder ${isSpinning ? 'spin' : ''}`} id="cylinder" ref={cylinderRef}>
-            {[0, 5, 1, 4, 2, 3].map(i => (
-              <div key={i} className="chamber" id={`chamber${i}`}></div>
-            ))}
-            <div className="outer-ring"></div>
-            {['one', 'two', 'three', 'four', 'five', 'six'].map((slot, idx) => (
-              <div key={idx} className={`revolver-slot slot-${slot}`}></div>
-            ))}
+        <div className="divider" />
+        <div className="deck-gun-block">
+          <div className="cylinder-wrap">
+            <div className="cylinder-container">
+              <div className={`cylinder ${isSpinning ? 'spin' : ''}`} ref={cylinderRef}>
+                {chamberOrder.map((i, index) => (
+                  <div key={i} className={`chamber ${index < shotsTaken ? 'shot' : ''}`} />
+                ))}
+                <div className="outer-ring" />
+                {['one', 'two', 'three', 'four', 'five', 'six'].map((slot, idx) => (
+                  <div key={idx} className={`revolver-slot slot-${slot}`} aria-hidden />
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="shot-info deck-shot-info">
+            <div className="shot-count">
+              <img src="/assets/img/revolver.png" alt="" aria-hidden />
+              <span>{shotsTaken}/{totalChambers}</span>
+            </div>
+            <div className="death-chance" aria-live="polite" aria-atomic="true">
+              <img src="/assets/img/skull.png" alt="" aria-hidden />
+              <span>{deathChancePct}%</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="shot-info">
-        <div className="shot-count">
-          <img src="/assets/img/revolver.png" alt="Chambers remaining" />
-          <span id="shotCount">{shotsTaken}/{totalChambers}</span>
+        <div className="deck-actions">
+          <button
+            type="button"
+            disabled={isButtonDisabled}
+            onClick={handleFire}
+            aria-label={isGameOver ? 'Reset game' : 'Fire'}
+          >
+            <span>{isGameOver ? 'RESET' : 'FIRE'}</span>
+          </button>
         </div>
-        <div className="death-chance">
-          <img src="/assets/img/skull.png" alt="Chance of dying" />
-          <span id="deathChance">0%</span>
+      </div>
+      {isGameOver && (
+        <div className="deck-result-overlay" role="status">
+          You died. Click RESET to play again.
         </div>
-      </div>
-      <div className="flex justify-center mt-6">
-        <button id="pullTriggerBtn" disabled={isButtonDisabled} onClick={handleFire}>
-          <span>{isGameOver ? 'RESET' : 'FIRE'}</span>
-        </button>
-      </div>
-      <audio id="clickSound" ref={clickSoundRef} src="/assets/mp3/click.mp3" preload="auto" />
-      <audio id="chimeSound" ref={chimeSoundRef} src="/assets/mp3/chime.mp3" preload="auto" />
-      <audio id="gunshotSound" ref={gunshotSoundRef} src="/assets/mp3/gunshot.mp3" preload="auto" />
-      <audio id="emptyClickSound" ref={emptyClickSoundRef} src="/assets/mp3/empty-gunshot.mp3" preload="auto" />
-      <audio id="spinSound" ref={spinSoundRef} src="/assets/mp3/revolver-spin.mp3" preload="auto" />
-      <div className="damage-warning" id="damageOverlay" ref={damageOverlayRef}></div>
-      <div id="blood-splatter-container" ref={bloodContainerRef}>
-        {splatters.map(s => (
-          <img key={s.id} src={`/assets/img/${s.src}`} style={s.style} alt="splatter" />
+      )}
+      <audio ref={clickSoundRef} src="/assets/mp3/click.mp3" preload="auto" />
+      <audio ref={chimeSoundRef} src="/assets/mp3/chime.mp3" preload="auto" />
+      <audio ref={gunshotSoundRef} src="/assets/mp3/gunshot.mp3" preload="auto" />
+      <audio ref={emptyClickSoundRef} src="/assets/mp3/empty-gunshot.mp3" preload="auto" />
+      <audio ref={spinSoundRef} src="/assets/mp3/revolver-spin.mp3" preload="auto" />
+      <div className="damage-warning" ref={damageOverlayRef} aria-hidden />
+      <div id="blood-splatter-container" ref={bloodContainerRef} style={{ display: 'none' }} aria-hidden>
+        {splatters.map((s) => (
+          <img key={s.id} src={`/assets/img/${s.src}`} style={s.style} alt="" aria-hidden />
         ))}
       </div>
     </>
   );
 };
 
-export default Game; 
+export default Game;
