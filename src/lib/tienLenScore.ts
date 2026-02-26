@@ -331,7 +331,7 @@ export function loadGame(): TienLenGame | null {
     const parsed = JSON.parse(raw) as TienLenGame;
     if (!parsed.players?.length || !Array.isArray(parsed.rounds)) return null;
     parsed.config = migrateConfig(parsed.config as unknown as Record<string, unknown>);
-    parsed.rounds = parsed.rounds.map((r: Record<string, unknown>) => migrateRound(r));
+    parsed.rounds = parsed.rounds.map((r) => migrateRound(r as unknown as Record<string, unknown>));
     return parsed;
   } catch {
     return null;

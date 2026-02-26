@@ -310,7 +310,6 @@ interface RoundHistoryTableProps {
 const RoundHistoryTable: React.FC<RoundHistoryTableProps> = ({ game, onRowClick, onEdit, onRemove }) => {
   const players = game.players;
   const playerIds = players.map((p) => p.id);
-  const getName = (id: string) => players.find((p) => p.id === id)?.name ?? '?';
 
   return (
     <div className="score-round-history">
@@ -496,8 +495,8 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ config, onChange, onSave, onC
   const winLabels: { label: string; keyName: keyof TienLenConfig }[] = [
     { label: '1st', keyName: 'pointsFirst' },
     { label: '2nd', keyName: 'pointsSecond' },
-    ...(playerCount >= 3 ? [{ label: '3rd', keyName: 'pointsThird' }] : []),
-    ...(playerCount >= 4 ? [{ label: '4th', keyName: 'pointsFourth' }] : []),
+    ...(playerCount >= 3 ? [{ label: '3rd', keyName: 'pointsThird' as keyof TienLenConfig }] : []),
+    ...(playerCount >= 4 ? [{ label: '4th', keyName: 'pointsFourth' as keyof TienLenConfig }] : []),
   ];
 
   return (
