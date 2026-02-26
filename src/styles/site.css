@@ -67,7 +67,7 @@ body.shake-on-death{animation:shake-on-death .45s ease-out}
 @keyframes poker-spin{from{transform:rotate(0)}to{transform:rotate(1440deg)}}
 /* 8 buồng: vị trí và kích thước theo % của cylinder (radius ~35%, chéo ~24.75%), translate(-50%,-50%) để đạn đúng giữa vòng đen */
 .poker-chamber{position:absolute;width:10%;height:10%;border-radius:50%;background:transparent;border:none;box-sizing:border-box;z-index:2;transform:translate(-50%,-50%)}
-.poker-chamber.poker-chamber--loaded{background:radial-gradient(circle at 30% 30%,#d4a574,#b8956a 40%,#8b6914 70%);box-shadow:inset 0 0 3px rgba(200,160,100,.45)}
+.poker-chamber.poker-chamber--loaded{background:radial-gradient(circle at 30% 30%,#c9a962,#a67c3d 35%,#6b4e1a 70%);box-shadow:inset 0 0 3px rgba(180,140,80,.4)}
 /* Vị trí 8 buồng theo chiều kim đồng hồ: (1)=12h, (2)=1:30, (3)=3h, (4)=4:30, (5)=6h, (6)=7:30, (7)=9h, (8)=10:30 */
 .poker-chamber:nth-child(1){top:15%;left:50%}
 .poker-chamber:nth-child(2){top:25.25%;left:74.75%}
@@ -104,9 +104,9 @@ body.shake-on-death{animation:shake-on-death .45s ease-out}
 @media (prefers-reduced-motion:reduce){.poker-cylinder-wrap--ready .poker-cylinder-8{animation:none}}
 .poker-bullet-icon{width:24px;height:24px;object-fit:contain;transition:opacity .2s,filter .2s}
 .poker-bullet-icon:not(.committed){opacity:.5}
-.poker-bullet-icon.committed{opacity:1;filter:brightness(1.05)}
+.poker-bullet-icon.committed{opacity:1;filter:brightness(1.05) sepia(0.35) saturate(1.2) hue-rotate(-5deg)}
 .poker-bullet-icon--next{animation:poker-bullet-pulse 1.5s ease-in-out infinite}
-@keyframes poker-bullet-pulse{0%,100%{filter:brightness(1.05)}50%{filter:brightness(1.25) drop-shadow(0 0 4px rgba(201,48,48,.4))}}
+@keyframes poker-bullet-pulse{0%,100%{filter:brightness(1.05) sepia(0.35) saturate(1.2) hue-rotate(-5deg)}50%{filter:brightness(1.25) sepia(0.35) saturate(1.2) hue-rotate(-5deg) drop-shadow(0 0 4px rgba(201,48,48,.4))}}
 @media (prefers-reduced-motion:reduce){.poker-bullet-icon--next{animation:none}}
 
 .poker-result-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1000;padding:24px 48px;border-radius:12px;font-size:1.5rem;font-weight:700;font-family:inherit;pointer-events:none;animation:poker-result-in .3s ease-out;white-space:nowrap}
