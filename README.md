@@ -1,11 +1,11 @@
-# Liar's Bar Web Support
+# Game Tools
 
-A web-based tool to support the Liar's Bar game mode from the Steam title "Liar's Bar". This offline-capable application provides a virtual "revolver" UI, card management, and game logic to play Liar's Deck, including Russian Roulette, with immersive sound and visual effects.
+A web-based tool to support the Liar's Bar game mode from the Steam title "Liar's Bar". This offline-capable application provides three game modes: Liar's Deck (Russian Roulette), Liar's Poker, and Card Score Tracker for Vietnamese 13 (Tiến lên).
 
 ## Table of Contents
 
 - [Features](#features)
-- [Game Rules](#game-rules)
+- [Game Modes](#game-modes)
 - [Demo](#demo)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
@@ -14,34 +14,39 @@ A web-based tool to support the Liar's Bar game mode from the Steam title "Liar'
   - [Running Locally](#running-locally)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
-- [Current Configuration](#current-configuration)
 - [License](#license)
 
 ## Features
 
-- Full implementation of Liar's Deck rules (Basic, Devil, Chaos, Liar's Deck 2 variants)
-- Virtual revolver with shot animations, sound effects, and blood splatter on lethal shots
+- **Liar's Deck** – 6-chamber virtual revolver with Russian Roulette gameplay, sound effects, and visual effects
+- **Liar's Poker** – 8-chamber poker-themed variant with community cards and stages (Pre-flop, Flop, Turn, River, Showdown)
+- **Card Score** – Vietnamese 13 (Tiến lên) score tracker with:
+  - 2–4 players support
+  - Configurable points (rankings, catch, hold, sweep, stuck)
+  - Round history with edit/delete
+  - Zero-sum default scoring per round
 - Offline gameplay—no external servers required once loaded
-- Responsive React UI with intuitive controls and mobile support
-- Extendable architecture for future enhancements and variants
+- Responsive React UI with mobile support
+- Persistent state (localStorage) for mode, mute, and game data
 
-## Game Rules
+## Game Modes
 
-This project implements the rules as described in "How to Play Liar's Deck (From Liar's Bar)" by Guillaume Fortin-Debigaré:
-https://www.debigare.com/how-to-play-liars-deck-from-liars-bar-full-rules-and-variants/
+| Mode | Description |
+|------|-------------|
+| **Liar's Deck** | Pick a card, spin the cylinder, and pull the trigger. Russian Roulette with card-based odds. |
+| **Liar's Poker** | Poker-themed variant with 8 chambers and community card stages. |
+| **Card Score** | Track Vietnamese 13 (Tiến lên) scores with configurable rules. |
 
 ## Demo
 
-Check out a live demo and reference implementation at:
-https://fun.essaalfan.com/liars-bar-russian-roulette/
+Live demo: [liarbar-app.vercel.app](https://liarbar-app.vercel.app)
 
 ## Tech Stack
 
-- React 18 + TypeScript
+- React 19 + TypeScript
 - Vite for fast builds and development server
 - Tailwind CSS for styling
-- Howler.js for sound effects
-- Framer Motion for animations
+- Deployed on Vercel
 
 ## Getting Started
 
@@ -53,8 +58,8 @@ https://fun.essaalfan.com/liars-bar-russian-roulette/
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/liars-bar-web-support.git
-cd liars-bar-web-support
+git clone https://github.com/lntvan166/game-tools.git
+cd game-tools
 npm install
 ```
 
@@ -64,47 +69,50 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open http://localhost:5173 in your browser.
+
+### Build
+
+```bash
+npm run build
+```
+
+Output is in the `dist/` directory.
 
 ## Project Structure
 
 ```
-liars-bar-web-support/
-├── public/                # Static assets (sounds, images)
+game-tools/
+├── public/                # Static assets (images, sounds)
+│   └── assets/img/
 ├── src/
-│   ├── components/        # Reusable React components
-│   ├── hooks/             # Custom hooks
-│   ├── pages/             # Page views and routes
-│   ├── utils/             # Helpers and game logic
+│   ├── components/        # React components
+│   │   ├── Game.tsx       # Liar's Deck
+│   │   ├── PokerGame.tsx  # Liar's Poker
+│   │   ├── ScoreTracking.tsx
+│   │   ├── TienLenScore.tsx
+│   │   └── AddRoundModal.tsx
+│   ├── lib/               # Game logic
+│   │   └── tienLenScore.ts
+│   ├── styles/
 │   ├── App.tsx
-│   └── main.tsx
-├── tests/                 # Unit and integration tests
-├── README.md
+│   ├── main.tsx
+│   └── ErrorBoundary.tsx
+├── vercel.json
 ├── package.json
 └── vite.config.ts
 ```
 
 ## Contributing
 
-Contributions are welcome! As a backend engineer, your focus can be on game logic, API mocks, and integration, while frontend engineers can handle UI/UX design and component implementation.
+Contributions are welcome!
 
-1. Fork the repository (`git clone https://github.com/yourusername/liars-bar-web-support.git`)
+1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/YourFeature`)
 3. Commit your changes (`git commit -m 'Add YourFeature'`)
 4. Push to the branch (`git push origin feature/YourFeature`)
-5. Open a Pull Request and request a review
-
-Please ensure code is well-documented, follows the existing style, and includes tests where applicable.
-
-## Current Configuration
-
-To refine implementation details, here are the chosen defaults:
-
-- Supported variant: Basic (initial)
-- Art assets & UI guidelines: placeholder assets; custom designs will be provided
-- Deployment & CI/CD: Vercel planned; configuration will be added later
-- Design focus: mobile-first responsive layout
+5. Open a Pull Request
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](LICENSE) for more details.
+Distributed under the MIT License.
