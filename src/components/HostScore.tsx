@@ -106,22 +106,23 @@ const HostScore: React.FC = () => {
 
       <div className="scoreboard">
         <h3 className="scoreboard-title">Scoreboard</h3>
-        <table className="scoreboard-table">
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedPlayers.map((p) => (
-              <tr key={p.id}>
-                <td>{p.name}</td>
+        <div className="scoreboard-header">
+          <span className="scoreboard-col-player">Player</span>
+          <span className="scoreboard-col-score">Score</span>
+        </div>
+        <div className="scoreboard-body">
+          <table className="scoreboard-table">
+            <colgroup><col /><col /></colgroup>
+            <tbody>
+              {sortedPlayers.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.name}</td>
                 <td className="scoreboard-value">{(scores[p.id] ?? 0)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <button type="button" className="score-btn score-btn-primary score-add-round-btn" onClick={() => { setRoundToEdit(null); setShowAddRound(true); }}>

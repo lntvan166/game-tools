@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Game from './components/Game';
 import PokerGame from './components/PokerGame';
 import ScoreTracking from './components/ScoreTracking';
@@ -17,6 +17,7 @@ function safeGetItem(key: string): string | null {
 }
 
 const App: React.FC = () => {
+  const [showIconMenu, setShowIconMenu] = useState(false);
   const [currentMode, setCurrentMode] = useState<GameMode>(() => {
     const saved = safeGetItem(MODE_KEY) as GameMode | null;
     return saved && ['roulette', 'poker', 'score'].includes(saved) ? saved : 'roulette';
@@ -49,57 +50,90 @@ const App: React.FC = () => {
     } catch { /* ignore */ }
   }, [currentMode]);
 
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const close = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowIconMenu(false);
+      }
+    };
+    if (showIconMenu) {
+      document.addEventListener('click', close);
+      return () => document.removeEventListener('click', close);
+    }
+  }, [showIconMenu]);
+
   return (
     <>
-      <nav className="mode-tabs" aria-label="Game mode">
-        <button
-          type="button"
-          className={`mode-tab ${currentMode === 'roulette' ? 'active' : ''}`}
-          onClick={() => setCurrentMode('roulette')}
-          aria-current={currentMode === 'roulette' ? 'true' : undefined}
+      <header className="app-header">
+        <nav className="mode-tabs" aria-label="Game mode">
+          <button
+            type="button"
+            className={`mode-tab ${currentMode === 'score' ? 'active' : ''}`}
+            onClick={() => setCurrentMode('score')}
+            aria-current={currentMode === 'score' ? 'true' : undefined}
+          >
+            Card Score
+          </button>
+          <button
+            type="button"
+            className={`mode-tab ${currentMode === 'roulette' ? 'active' : ''}`}
+            onClick={() => setCurrentMode('roulette')}
+            aria-current={currentMode === 'roulette' ? 'true' : undefined}
+          >
+            Liar's Deck
+          </button>
+          <button
+            type="button"
+            className={`mode-tab ${currentMode === 'poker' ? 'active' : ''}`}
+            onClick={() => setCurrentMode('poker')}
+            aria-current={currentMode === 'poker' ? 'true' : undefined}
+          >
+            Liar's Poker
+          </button>
+        </nav>
+        <div
+          ref={menuRef}
+          className={`deck-menu-wrapper ${showIconMenu ? 'open' : ''}`}
+          onMouseEnter={() => setShowIconMenu(true)}
+          onMouseLeave={() => setShowIconMenu(false)}
         >
-          Liar's Deck
-        </button>
-        <button
-          type="button"
-          className={`mode-tab ${currentMode === 'poker' ? 'active' : ''}`}
-          onClick={() => setCurrentMode('poker')}
-          aria-current={currentMode === 'poker' ? 'true' : undefined}
-        >
-          Liar's Poker
-        </button>
-        <button
-          type="button"
-          className={`mode-tab ${currentMode === 'score' ? 'active' : ''}`}
-          onClick={() => setCurrentMode('score')}
-          aria-current={currentMode === 'score' ? 'true' : undefined}
-        >
-          Card Score
-        </button>
-      </nav>
-      <div className="deck-top-right">
-        <a
-          href="https://github.com/lntvan166/game-tools"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="deck-github-btn"
-          aria-label="Contribute on GitHub"
-          title="Contribute on GitHub"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-        </a>
-        <button
-          type="button"
-          className={`deck-mute-btn ${muted ? 'muted' : ''}`}
-          onClick={() => setMuted((m) => !m)}
-          aria-label={muted ? 'Unmute sound' : 'Mute sound'}
-          title={muted ? 'Unmute' : 'Mute'}
-        >
-          {muted ? '\u{1F507}' : '\u{1F50A}'}
-        </button>
-      </div>
+          <div className="deck-top-right">
+            <a
+              href="https://github.com/lntvan166/game-tools"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="deck-github-btn"
+              aria-label="Contribute on GitHub"
+              title="Contribute on GitHub"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              </svg>
+            </a>
+            <button
+              type="button"
+              className={`deck-mute-btn ${muted ? 'muted' : ''}`}
+              onClick={() => setMuted((m) => !m)}
+              aria-label={muted ? 'Unmute sound' : 'Mute sound'}
+              title={muted ? 'Unmute' : 'Mute'}
+            >
+              {muted ? '\u{1F507}' : '\u{1F50A}'}
+            </button>
+          </div>
+          <button
+            type="button"
+            className="deck-menu-trigger"
+            onClick={() => setShowIconMenu((v) => !v)}
+            aria-label="More options"
+            aria-expanded={showIconMenu}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <circle cx="12" cy="6" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="18" r="1.5" />
+            </svg>
+          </button>
+        </div>
+      </header>
       <div className="mode-content">
         <div key={currentMode} className="mode-content-inner">
           {currentMode === 'roulette' && <Game muted={muted} />}
