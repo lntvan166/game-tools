@@ -292,4 +292,35 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .score-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
 .score-modal-actions button::before,.score-modal-actions button::after{display:none !important}
 .tienlen-new-game button::before,.tienlen-new-game button::after{display:none !important}
-.score-new-game-modal button::before,.score-new-game-modal button::after{display:none !important} 
+.score-new-game-modal button::before,.score-new-game-modal button::after{display:none !important}
+
+/* Host score mode */
+.host-modal-overlay .host-modal{max-height:100dvh;display:flex;flex-direction:column;padding:12px}
+@media (min-width:480px){.host-modal-overlay .host-modal{max-height:90vh;max-width:420px}}
+.host-modal-header{flex-shrink:0;margin-bottom:12px}
+.host-host-select{display:flex;flex-direction:column;gap:6px}
+.host-host-label{font-size:13px;color:#888;font-weight:600}
+.host-host-dropdown{width:100%}
+.host-player-list{flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:8px}
+.host-player-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#333;border:1px solid #444;border-radius:6px;transition:background .15s}
+.host-player-name{flex:1;min-width:0;font-size:14px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.host-multiplier-cell{flex-shrink:0}
+.host-multiplier-badge{min-width:44px;min-height:44px;padding:6px 10px;border:1px solid #555;background:#222;color:#aaa;cursor:pointer;border-radius:6px;font-size:14px;font-weight:600}
+.host-multiplier-badge:hover{color:#d3a446;border-color:#666}
+.host-multiplier-input{width:48px;padding:8px;border:1px solid #555;background:#222;color:#fff;font-size:14px;border-radius:6px;text-align:center}
+.host-result-btns{display:flex;gap:6px;flex-shrink:0}
+.host-result-btn{min-width:44px;min-height:44px;padding:0 10px;border:1px solid #555;background:#222;color:#888;cursor:pointer;border-radius:6px;font-size:14px;font-weight:600}
+.host-result-btn:hover{color:#fff;border-color:#666}
+.host-result-btn.active{color:#fff;border-color:#d3a446;background:rgba(211,164,70,.2)}
+.host-result-btn.win.active{color:#6a9e6a;border-color:#6a9e6a;background:rgba(106,158,106,.2)}
+.host-result-btn.lose.active{color:#c93030;border-color:#c93030;background:rgba(201,48,48,.2)}
+.host-result-btn.draw.active{color:#888;border-color:#666;background:rgba(136,136,136,.2)}
+.host-modal .host-multiplier-badge::before,.host-modal .host-multiplier-badge::after,.host-modal .host-result-btn::before,.host-modal .host-result-btn::after{display:none !important}
+.host-config-label{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.host-config-label span{color:#aaa;font-size:14px}
+.host-modal-actions{flex-shrink:0;margin-top:12px}
+.host-round-table-wrap{overflow-x:auto}
+.host-col-host{min-width:80px;font-weight:600}
+.host-host-name{color:#d3a446;font-weight:600}
+.host-player-count-select{width:auto;min-width:80px}
+.host-new-game-form .score-new-game-form{max-height:50vh;overflow-y:auto} 
