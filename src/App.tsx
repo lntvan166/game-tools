@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Game from './components/Game';
 import PokerGame from './components/PokerGame';
 import ScoreTracking from './components/ScoreTracking';
@@ -144,6 +145,7 @@ const App: React.FC = () => {
       <footer className="app-credit" role="contentinfo">
         Developed by irok
       </footer>
+      <Analytics />
     </>
   );
 };
