@@ -22,7 +22,7 @@ const App: React.FC = () => {
     const saved = safeGetItem(MODE_KEY) as GameMode | null;
     return saved && ['roulette', 'poker', 'score'].includes(saved) ? saved : 'roulette';
   });
-  const [muted, setMuted] = useState<boolean>(() => safeGetItem(MUTE_KEY) === '1');
+  const [muted, setMuted] = useState<boolean>(false);
 
   useEffect(() => {
     document.body.classList.add('has-mode-tabs');

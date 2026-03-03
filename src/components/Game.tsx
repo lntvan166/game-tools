@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import '../styles/site.css';
 
 const totalChambers = 6;
+const SPIN_DURATION_MS = 3000;
 const cardOptions = ['A', 'K', 'Q'];
 const DECK_HINT_KEY = 'liarbar-deck-hint-dismissed';
 
@@ -28,6 +29,8 @@ const Game: React.FC<GameProps> = ({ muted }) => {
   const cylinderRef = useRef<HTMLDivElement>(null);
   const damageOverlayRef = useRef<HTMLDivElement>(null);
   const bloodContainerRef = useRef<HTMLDivElement>(null);
+
+  const fireLockedRef = useRef<boolean>(false);
 
   const clickSoundRef = useRef<HTMLAudioElement>(null);
   const chimeSoundRef = useRef<HTMLAudioElement>(null);
@@ -105,9 +108,18 @@ const Game: React.FC<GameProps> = ({ muted }) => {
 
   const play = (ref: React.RefObject<HTMLAudioElement | null>) => {
     if (muted || !ref.current) return;
-    ref.current.pause();
-    ref.current.currentTime = 0;
-    ref.current.play();
+    try {
+      ref.current.pause();
+      ref.current.currentTime = 0;
+      const result = ref.current.play();
+      if (result && typeof (result as Promise<void>).catch === 'function') {
+        (result as Promise<void>).catch(() => {
+          // ignore playback errors (e.g. autoplay restrictions)
+        });
+      }
+    } catch {
+      // ignore
+    }
   };
 
   const handleCardClick = () => {
@@ -144,15 +156,21 @@ const Game: React.FC<GameProps> = ({ muted }) => {
   };
 
   const handleFire = () => {
-    if (isButtonDisabled) return;
+    if (fireLockedRef.current || isButtonDisabled) return;
+    fireLockedRef.current = true;
     if (isGameOver) {
       resetGame();
+      fireLockedRef.current = false;
       return;
     }
     play(spinSoundRef);
     setIsSpinning(true);
     setIsButtonDisabled(true);
     setTimeout(() => {
+      if (spinSoundRef.current) {
+        spinSoundRef.current.pause();
+        spinSoundRef.current.currentTime = 0;
+      }
       setIsSpinning(false);
       const currentShots = shotsTaken;
       setShotsTaken(currentShots + 1);
@@ -165,7 +183,8 @@ const Game: React.FC<GameProps> = ({ muted }) => {
         play(emptyClickSoundRef);
       }
       setIsButtonDisabled(false);
-    }, 3000);
+      fireLockedRef.current = false;
+    }, SPIN_DURATION_MS);
   };
 
   const dismissHint = () => {
