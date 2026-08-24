@@ -387,3 +387,14 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .score-view-toggle-btn:hover{color:#fff}
 .score-view-toggle-btn.active{background:#d3a446;color:#1a1a1a}
 .score-config-preview{margin:8px 0 0;font-size:11px;color:#aaa;line-height:1.5}
+
+/* Access gate */
+.access-gate{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:#1a1a1a}
+.access-gate-panel{max-width:360px;width:100%}
+.access-gate-title{text-align:center}
+.access-gate-hint{margin:0 0 20px;color:#aaa;font-size:13px;line-height:1.5;text-align:center}
+.access-gate-label{display:block;margin-bottom:12px}
+.access-gate-label-text{display:block;margin-bottom:6px;font-size:12px;color:#888}
+.access-gate-input{width:100%;text-align:center;letter-spacing:.18em;font-size:18px}
+.access-gate-error{margin:0;color:#d36a46;font-size:13px;text-align:center}
+.access-gate-actions{justify-content:center}

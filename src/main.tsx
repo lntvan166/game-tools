@@ -4,11 +4,14 @@ import './index.css'
 import App from './App.tsx'
 import './styles/site.css'
 import { ErrorBoundary } from './ErrorBoundary'
+import AccessGate from './components/AccessGate'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <App />
+      <AccessGate>
+        <App />
+      </AccessGate>
     </ErrorBoundary>
   </StrictMode>,
 )
