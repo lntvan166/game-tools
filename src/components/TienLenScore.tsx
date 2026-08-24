@@ -7,6 +7,7 @@ import {
   removeRound,
   updateRound,
   calcTotalScores,
+  calcTotalMoney,
   calcRoundPoints,
   migrateRound,
   migrateConfig,
@@ -15,7 +16,10 @@ import {
   type RoundResult,
   DEFAULT_CONFIG,
 } from '../lib/tienLenScore';
+import { formatMoney, formatMoneySigned, shouldShowMoney, resolveMoneyRate, scalePointsToMoney } from '../lib/money';
 import AddRoundModal from './AddRoundModal';
+import ScoreViewToggle from './ScoreViewToggle';
+import type { ScoreView } from './ScoreViewToggle';
 
 const TienLenScore: React.FC = () => {
   const [game, setGame] = useState<TienLenGame | null>(() => loadGame());
@@ -67,6 +71,7 @@ const TienLenScore: React.FC = () => {
   const [roundToDelete, setRoundToDelete] = useState<number | null>(null);
   const [roundToEdit, setRoundToEdit] = useState<number | null>(null);
   const [selectedRoundIndex, setSelectedRoundIndex] = useState<number | null>(null);
+  const [historyView, setHistoryView] = useState<ScoreView>('points');
 
   const handleRemoveRound = useCallback((index: number) => {
     setRoundToDelete(index);
@@ -93,6 +98,11 @@ const TienLenScore: React.FC = () => {
   }
 
   const scores = calcTotalScores(game);
+  const money = calcTotalMoney(game);
+  const showMoney = shouldShowMoney(
+    game.config.moneyRate,
+    game.rounds.map((r) => r.configSnapshot?.moneyRate)
+  );
   const sortedPlayers = [...game.players].sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0));
 
   return (
@@ -111,18 +121,24 @@ const TienLenScore: React.FC = () => {
 
       <div className="scoreboard">
         <h3 className="scoreboard-title">Scoreboard</h3>
-        <div className="scoreboard-header">
+        <div className={`scoreboard-header${showMoney ? ' has-money' : ''}`}>
           <span className="scoreboard-col-player">Player</span>
           <span className="scoreboard-col-score">Score</span>
+          {showMoney && <span className="scoreboard-col-money">Money</span>}
         </div>
         <div className="scoreboard-body">
           <table className="scoreboard-table">
-            <colgroup><col /><col /></colgroup>
+            <colgroup><col /><col />{showMoney && <col />}</colgroup>
             <tbody>
               {sortedPlayers.map((p) => (
                 <tr key={p.id}>
                   <td>{p.name}</td>
                   <td className="scoreboard-value">{(scores[p.id] ?? 0)}</td>
+                  {showMoney && (
+                    <td className="scoreboard-value scoreboard-money">
+                      {formatMoneySigned(money[p.id] ?? 0)}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -137,6 +153,9 @@ const TienLenScore: React.FC = () => {
       {game.rounds.length > 0 && (
         <RoundHistoryTable
           game={game}
+          showMoney={showMoney}
+          historyView={historyView}
+          onHistoryViewChange={setHistoryView}
           onRowClick={(idx) => setSelectedRoundIndex(idx)}
           onEdit={(idx) => { setRoundToEdit(idx); setShowAddRound(true); }}
           onRemove={handleRemoveRound}
@@ -149,6 +168,7 @@ const TienLenScore: React.FC = () => {
           roundIndex={selectedRoundIndex}
           players={game.players}
           gameConfig={game.config}
+          showMoney={showMoney}
           onClose={() => setSelectedRoundIndex(null)}
         />
       )}
@@ -158,7 +178,7 @@ const TienLenScore: React.FC = () => {
           config={configEdit}
           onChange={setConfigEdit}
           onSave={handleConfigSave}
-          onClose={() => setShowConfig(false)}
+          onClose={() => { setConfigEdit(game.config); setShowConfig(false); }}
           playerCount={game.players.length}
         />
       )}
@@ -303,18 +323,32 @@ const CATCH_TYPE_LABELS: Record<string, string> = {
 
 interface RoundHistoryTableProps {
   game: TienLenGame;
+  showMoney: boolean;
+  historyView: ScoreView;
+  onHistoryViewChange: (v: ScoreView) => void;
   onRowClick: (index: number) => void;
   onEdit: (index: number) => void;
   onRemove: (index: number) => void;
 }
 
-const RoundHistoryTable: React.FC<RoundHistoryTableProps> = ({ game, onRowClick, onEdit, onRemove }) => {
+const RoundHistoryTable: React.FC<RoundHistoryTableProps> = ({
+  game,
+  showMoney,
+  historyView,
+  onHistoryViewChange,
+  onRowClick,
+  onEdit,
+  onRemove,
+}) => {
   const players = game.players;
   const playerIds = players.map((p) => p.id);
 
   return (
     <div className="score-round-history">
-      <h3 className="scoreboard-title">Round history</h3>
+      <div className="score-history-head">
+        <h3 className="scoreboard-title">Round history</h3>
+        {showMoney && <ScoreViewToggle view={historyView} onChange={onHistoryViewChange} />}
+      </div>
       <div className="score-round-table-wrap">
         <table className="score-round-table">
           <thead>
@@ -331,6 +365,13 @@ const RoundHistoryTable: React.FC<RoundHistoryTableProps> = ({ game, onRowClick,
               const round = game.rounds[idx];
               const roundConfig = round.configSnapshot ? migrateConfig(round.configSnapshot as unknown as Record<string, unknown>) : game.config;
               const points = calcRoundPoints(migrateRound(round as unknown as Record<string, unknown>), roundConfig, playerIds);
+              const viewingMoney = showMoney && historyView === 'money';
+              const values = viewingMoney
+                ? scalePointsToMoney(
+                    points,
+                    resolveMoneyRate(roundConfig.moneyRate, game.config.moneyRate)
+                  )
+                : points;
               return (
                 <tr
                   key={idx}
@@ -343,7 +384,9 @@ const RoundHistoryTable: React.FC<RoundHistoryTableProps> = ({ game, onRowClick,
                   <td className="score-round-num">{idx + 1}</td>
                   {playerIds.map((id) => (
                     <td key={id} className="score-round-point">
-                      {(points[id] ?? 0) >= 0 ? '+' : ''}{points[id] ?? 0}
+                      {viewingMoney
+                        ? formatMoneySigned(values[id] ?? 0)
+                        : `${(values[id] ?? 0) >= 0 ? '+' : ''}${values[id] ?? 0}`}
                     </td>
                   ))}
                   <td className="score-round-table-actions">
@@ -382,14 +425,19 @@ interface RoundDetailModalProps {
   roundIndex: number;
   players: { id: string; name: string }[];
   gameConfig: TienLenConfig;
+  showMoney: boolean;
   onClose: () => void;
 }
 
-const RoundDetailModal: React.FC<RoundDetailModalProps> = ({ round, roundIndex, players, gameConfig, onClose }) => {
+const RoundDetailModal: React.FC<RoundDetailModalProps> = ({ round, roundIndex, players, gameConfig, showMoney, onClose }) => {
   const getName = (id: string) => players.find((p) => p.id === id)?.name ?? '?';
   const playerIds = players.map((p) => p.id);
   const roundConfig = round.configSnapshot ? migrateConfig(round.configSnapshot as unknown as Record<string, unknown>) : gameConfig;
   const points = calcRoundPoints(migrateRound(round as unknown as Record<string, unknown>), roundConfig, playerIds);
+  const money = scalePointsToMoney(
+    points,
+    resolveMoneyRate(roundConfig.moneyRate, gameConfig.moneyRate)
+  );
 
   const hasSummary = Boolean(
     (round.customPoints && Object.keys(round.customPoints).length > 0) ||
@@ -407,7 +455,13 @@ const RoundDetailModal: React.FC<RoundDetailModalProps> = ({ round, roundIndex, 
           {playerIds.map((id) => (
             <div key={id} className="score-round-detail-row">
               <span>{getName(id)}</span>
-              <span className="scoreboard-value">{(points[id] ?? 0) >= 0 ? '+' : ''}{points[id] ?? 0}</span>
+              <span className="scoreboard-value">
+                {(points[id] ?? 0) >= 0 ? '+' : ''}
+                {points[id] ?? 0}
+                {showMoney && (
+                  <span className="scoreboard-money"> {formatMoneySigned(money[id] ?? 0)}</span>
+                )}
+              </span>
             </div>
           ))}
         </div>
@@ -542,6 +596,26 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ config, onChange, onSave, onC
             <ConfigLabel label="Sweep (pts/loser)" keyName="pointsToiTrangPerLoser" />
             <ConfigLabel label="Stuck (pts per person)" keyName="pointsRucPerPerson" />
           </div>
+        </section>
+
+        <section className="score-config-section">
+          <h3 className="score-config-section-title">Money</h3>
+          <label className="host-config-label">
+            <span>Money per point</span>
+            <input
+              type="number"
+              min={0}
+              step={1000}
+              value={config.moneyRate ?? 0}
+              onChange={(e) => onChange({ ...config, moneyRate: Math.max(0, Number(e.target.value) || 0) })}
+              className="score-input"
+            />
+          </label>
+          <p className="score-config-preview">
+            {(config.moneyRate ?? 0) === 0
+              ? 'No money tracked. Set a rate to settle up in cash.'
+              : `${formatMoney(config.moneyRate ?? 0)} per point → a +2 round pays ${formatMoneySigned((config.moneyRate ?? 0) * 2)}`}
+          </p>
         </section>
 
         <div className="score-modal-actions">

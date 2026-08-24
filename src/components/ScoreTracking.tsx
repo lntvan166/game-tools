@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import TienLenScore from './TienLenScore';
 import HostScore from './HostScore';
+import WinCountScore from './WinCountScore';
 
-type ScoreSubMode = 'tienlen' | 'host';
+type ScoreSubMode = 'tienlen' | 'host' | 'wincount';
 
 const ScoreTracking: React.FC = () => {
   const [subMode, setSubMode] = useState<ScoreSubMode>('tienlen');
@@ -26,10 +27,19 @@ const ScoreTracking: React.FC = () => {
         >
           Host
         </button>
+        <button
+          type="button"
+          className={`score-sub-tab ${subMode === 'wincount' ? 'active' : ''}`}
+          onClick={() => setSubMode('wincount')}
+          aria-current={subMode === 'wincount' ? 'true' : undefined}
+        >
+          Win Count
+        </button>
       </nav>
       <div className="score-content">
         {subMode === 'tienlen' && <TienLenScore />}
         {subMode === 'host' && <HostScore />}
+        {subMode === 'wincount' && <WinCountScore />}
       </div>
     </div>
   );
