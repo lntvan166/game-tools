@@ -1,3 +1,5 @@
+import { resolveMoneyRate, scalePointsToMoney } from './money';
+
 export type CatchType = 'red2' | 'black2' | 'threePairs' | 'fourPairs' | 'fourOfKind';
 
 export interface TienLenConfig {
@@ -17,6 +19,12 @@ export interface TienLenConfig {
   pointsLastFourOfKind: number;
   pointsToiTrangPerLoser: number;
   pointsRucPerPerson: number;
+  /**
+   * Money per point, raw currency. Optional on purpose: `undefined` marks a
+   * round recorded before the money feature, which inherits the current rate.
+   * See resolveMoneyRate in ./money.
+   */
+  moneyRate?: number;
 }
 
 export interface Player {
@@ -90,6 +98,7 @@ export const DEFAULT_CONFIG: TienLenConfig = {
   pointsLastFourOfKind: -2,
   pointsToiTrangPerLoser: 4,
   pointsRucPerPerson: 4,
+  moneyRate: 0,
 };
 
 /** Default win points by player count; each set sums to 0 */
@@ -234,6 +243,10 @@ export function migrateConfig(config: Record<string, unknown>): TienLenConfig {
     pointsLastFourOfKind: c.pointsLastFourOfKind ?? DEFAULT_CONFIG.pointsLastFourOfKind,
     pointsToiTrangPerLoser: c.pointsToiTrangPerLoser ?? DEFAULT_CONFIG.pointsToiTrangPerLoser,
     pointsRucPerPerson: c.pointsRucPerPerson ?? c.pointsRuc1 ?? DEFAULT_CONFIG.pointsRucPerPerson,
+    // Deliberately NOT `?? DEFAULT_CONFIG.moneyRate`. migrateConfig also runs
+    // over configSnapshot, and defaulting to 0 there would repice every legacy
+    // round at zero forever.
+    moneyRate: c.moneyRate,
   };
 }
 
@@ -318,6 +331,30 @@ export function calcTotalScores(game: TienLenGame): Record<string, number> {
     const roundPts = calcRoundPoints(migrated, roundConfig, playerIds);
     Object.entries(roundPts).forEach(([id, pts]) => {
       totals[id] = (totals[id] ?? 0) + pts;
+    });
+  });
+
+  return totals;
+}
+
+export function calcTotalMoney(game: TienLenGame): Record<string, number> {
+  const totals: Record<string, number> = {};
+  game.players.forEach((p) => (totals[p.id] = 0));
+  const playerIds = game.players.map((p) => p.id);
+  const config = migrateConfig(game.config as unknown as Record<string, unknown>);
+
+  game.rounds.forEach((round) => {
+    const migrated = migrateRound(round as unknown as Record<string, unknown>);
+    const roundConfig = migrated.configSnapshot
+      ? migrateConfig(migrated.configSnapshot as unknown as Record<string, unknown>)
+      : config;
+    const rate = resolveMoneyRate(roundConfig.moneyRate, config.moneyRate);
+    const roundMoney = scalePointsToMoney(
+      calcRoundPoints(migrated, roundConfig, playerIds),
+      rate
+    );
+    Object.entries(roundMoney).forEach(([id, amount]) => {
+      totals[id] = (totals[id] ?? 0) + amount;
     });
   });
 
