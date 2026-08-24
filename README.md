@@ -12,6 +12,7 @@ A web-based tool to support the Liar's Bar game mode from the Steam title "Liar'
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Running Locally](#running-locally)
+  - [Access Code (optional)](#access-code-optional)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
@@ -78,6 +79,39 @@ npm run build
 ```
 
 Output is in the `dist/` directory.
+
+### Access Code (optional)
+
+The app can be gated behind an invite code. It is disabled by default.
+
+1. Pick a code using the characters `0123456789ABCDEFGHJKMNPQRSTVWXYZ`
+   (`I`, `L`, `O`, and `U` are excluded so codes are unambiguous read aloud),
+   formatted `XXXX-XXXX`.
+2. Hash it:
+
+   ```bash
+   npm run hash-code QRTX-8M2P
+   ```
+
+3. Set `VITE_ACCESS_CODE_HASHES` to the resulting hash in your Vercel project
+   settings. Several codes can be configured at once, comma-separated, so you
+   can hand different codes to different groups and revoke one without
+   disturbing the others.
+4. Redeploy. Vite inlines `VITE_*` at build time, so an environment-variable
+   change alone does not take effect.
+
+Leaving the variable unset disables the gate, so `npm run dev` and forks of
+this repository work with no setup.
+
+Revoking a code removes access from people who already used it: the app stores
+the hash of the code that was accepted and re-checks it against the current
+list on every load.
+
+**What this is.** A doorbell, not a lock. This is a static site — the
+JavaScript bundle is public and the check runs in the browser, so anyone
+willing to open developer tools can bypass it. It stops casual visitors who
+happen to find the URL; it is not access control. If you need real
+restriction, use Vercel's Deployment Protection instead.
 
 ## Project Structure
 
