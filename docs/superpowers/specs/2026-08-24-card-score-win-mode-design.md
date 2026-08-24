@@ -116,6 +116,13 @@ For a round with `n` players in the game:
 
 Money is zero-sum by construction: `(n − 1) × bet − (n − 1) × bet = 0`.
 
+Note that the retroactive-pricing behaviour described under
+[Backward compatibility](#backward-compatibility) does not apply to this mode.
+It ships with the money feature, so every round it records carries an explicit
+`betAmount` snapshot — including `0`. Setting a bet therefore prices future
+rounds only, exactly as the snapshot rule already governs points. The config
+modal opens automatically on new game so the bet is set before play.
+
 Worked example, 6 players, `betAmount = 5000`: the winner gains `25,000`, the
 five losers lose `5,000` each.
 
@@ -206,14 +213,29 @@ Two hazards, both found by reading the current code.
 **1. `migrateConfig` whitelists keys.** `src/lib/tienLenScore.ts:218` rebuilds
 the config field by field from a fixed list. A `moneyRate` not added to that
 list is silently stripped on every load, so the rate would appear to save and
-then vanish on refresh. `moneyRate: c.moneyRate ?? DEFAULT_CONFIG.moneyRate`
-must be added there. `hostScore.ts` has no migrate function; `loadHostGame`
-gets the same `?? 0` defaulting inline.
+then vanish on refresh. It must be added there. `hostScore.ts` has no migrate
+function; `loadHostGame` gets `?? 0` defaulting inline.
 
-**2. Legacy rounds have no `moneyRate` in their snapshot.** `migrateRound`
-(`src/lib/tienLenScore.ts:146`) passes `configSnapshot` through untouched and
-must continue to — running `migrateConfig` over the snapshot would inject
-`moneyRate: 0` into every historical round and destroy the distinction below.
+**2. `moneyRate` must be optional, and `migrateConfig` must not default it.**
+`migrateConfig` is run over `configSnapshot` at three calculation sites —
+`calcTotalScores` (`src/lib/tienLenScore.ts:317`) and `TienLenScore.tsx:332`
+and `:391`. Every other config field defaults to a `DEFAULT_CONFIG` value
+there, but `moneyRate` must not: writing
+`moneyRate: c.moneyRate ?? DEFAULT_CONFIG.moneyRate` would inject `0` into
+every legacy snapshot at calculation time and destroy the distinction below.
+
+The field is therefore declared `moneyRate?: number` and migrated by straight
+passthrough:
+
+```ts
+// in migrateConfig — deliberately NOT `?? DEFAULT_CONFIG.moneyRate`
+moneyRate: c.moneyRate,
+```
+
+`undefined` is load-bearing here: it is the marker that distinguishes a round
+recorded before this feature from one deliberately recorded at a rate of `0`.
+`migrateRound` (`src/lib/tienLenScore.ts:146`) passes `configSnapshot` through
+raw and needs no change.
 
 All money reads therefore use:
 
