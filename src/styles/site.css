@@ -363,3 +363,23 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .host-host-name{color:#d3a446;font-weight:600}
 .host-player-count-select{width:auto;min-width:80px}
 .host-new-game-form .score-new-game-form{max-height:50vh;overflow-y:auto} 
+/* Win Count winner picker */
+.win-winner-fieldset{border:none;padding:0;margin:0 0 12px}
+.win-winner-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+@media (min-width:480px){.win-winner-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.win-winner-option{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #555;border-radius:4px;background:#2a2a2a;color:#ddd;cursor:pointer;font-size:13px;transition:border-color .15s,color .15s}
+.win-winner-option:hover{border-color:#888;color:#fff}
+.win-winner-option.selected{border-color:#d3a446;color:#d3a446}
+.win-winner-option input{accent-color:#d3a446;flex-shrink:0}
+.win-winner-option span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Money column + history view toggle (shared by all three score modes) */
+.scoreboard-col-money{text-align:right}
+.scoreboard-money{color:#8fbf7f;white-space:nowrap}
+.score-history-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.score-view-toggle{display:inline-flex;border:1px solid #555;border-radius:4px;overflow:hidden}
+.score-view-toggle-btn{padding:4px 10px;border:none;background:transparent;color:#aaa;font-family:inherit;font-size:11px;cursor:pointer;transition:background .15s,color .15s}
+.score-view-toggle-btn::before,.score-view-toggle-btn::after{display:none !important}
+.score-view-toggle-btn:hover{color:#fff}
+.score-view-toggle-btn.active{background:#d3a446;color:#1a1a1a}
+.score-config-preview{margin:8px 0 0;font-size:11px;color:#aaa;line-height:1.5}
