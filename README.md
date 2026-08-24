@@ -20,11 +20,12 @@ A web-based tool to support the Liar's Bar game mode from the Steam title "Liar'
 
 - **Liar's Deck** – 6-chamber virtual revolver with Russian Roulette gameplay, sound effects, and visual effects
 - **Liar's Poker** – 8-chamber poker-themed variant with community cards and stages (Pre-flop, Flop, Turn, River, Showdown)
-- **Card Score** – Vietnamese 13 (Tiến lên) score tracker with:
-  - 2–4 players support
-  - Configurable points (rankings, catch, hold, sweep, stuck)
-  - Round history with edit/delete
-  - Zero-sum default scoring per round
+- **Card Score** – score tracker with three modes:
+  - *Vietnamese 13 (Tiến lên)* – 2–4 players, configurable points (rankings, catch, hold, sweep, stuck), zero-sum per round
+  - *Host* – 2–20 players, one host per round, win/lose/draw with multipliers
+  - *Win Count* – 2–10 players, one winner per round scoring 1 point; generic enough for most trick-taking games
+  - Optional money tracking in every mode: set a rate and the app settles up in cash
+  - Round history with edit/delete and a Points ⇄ Money view toggle
 - Offline gameplay—no external servers required once loaded
 - Responsive React UI with mobile support
 - Persistent state (localStorage) for mode, mute, and game data
@@ -35,7 +36,7 @@ A web-based tool to support the Liar's Bar game mode from the Steam title "Liar'
 |------|-------------|
 | **Liar's Deck** | Pick a card, spin the cylinder, and pull the trigger. Russian Roulette with card-based odds. |
 | **Liar's Poker** | Poker-themed variant with 8 chambers and community card stages. |
-| **Card Score** | Track Vietnamese 13 (Tiến lên) scores with configurable rules. |
+| **Card Score** | Track scores for Vietnamese 13, Host, or any one-winner-per-round game, with optional cash settlement. |
 
 ## Demo
 
@@ -79,6 +80,14 @@ npm run build
 
 Output is in the `dist/` directory.
 
+### Tests
+
+```bash
+npm test
+```
+
+Unit tests cover the scoring and money logic in `src/lib/`.
+
 ## Project Structure
 
 ```
@@ -91,9 +100,17 @@ game-tools/
 │   │   ├── PokerGame.tsx  # Liar's Poker
 │   │   ├── ScoreTracking.tsx
 │   │   ├── TienLenScore.tsx
-│   │   └── AddRoundModal.tsx
-│   ├── lib/               # Game logic
-│   │   └── tienLenScore.ts
+│   │   ├── HostScore.tsx
+│   │   ├── WinCountScore.tsx
+│   │   ├── ScoreViewToggle.tsx
+│   │   ├── AddRoundModal.tsx
+│   │   ├── AddHostRoundModal.tsx
+│   │   └── AddWinRoundModal.tsx
+│   ├── lib/               # Game logic (unit-tested with vitest)
+│   │   ├── money.ts
+│   │   ├── tienLenScore.ts
+│   │   ├── hostScore.ts
+│   │   └── winCount.ts
 │   ├── styles/
 │   ├── App.tsx
 │   ├── main.tsx
