@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   normalizeCode,
@@ -8,6 +9,7 @@ import {
   loadStoredHash,
   saveStoredHash,
   clearStoredHash,
+  resolveInitialUnlock,
 } from './accessCode';
 
 /**
@@ -51,6 +53,12 @@ describe('normalizeCode', () => {
     // The app must not reject them; normalization is not validation.
     expect(normalizeCode('ilou-1234')).toBe('ILOU1234');
   });
+
+  it('strips an en dash the same as an ASCII hyphen', () => {
+    // iOS/macOS smart substitution turns the hyphen into an en dash when a
+    // code is shared over chat.
+    expect(normalizeCode('QRTX–8M2P')).toBe('QRTX8M2P');
+  });
 });
 
 describe('hashCode', () => {
@@ -76,6 +84,17 @@ describe('hashCode', () => {
 
   it('gives different codes different hashes', async () => {
     expect(await hashCode('ABCD-1234')).not.toBe(await hashCode('ABCD-1235'));
+  });
+});
+
+describe('hash-code CLI', () => {
+  it('agrees with hashCode for the same input', async () => {
+    // Guards against scripts/hash-code.mjs's mirror of normalizeCode drifting
+    // from src/lib/accessCode.ts — see the comment atop each copy.
+    const out = execFileSync('node', ['scripts/hash-code.mjs', 'QRTX-8M2P'], {
+      encoding: 'utf8',
+    });
+    expect(out).toContain(await hashCode('QRTX-8M2P'));
   });
 });
 
@@ -173,6 +192,33 @@ describe('storage', () => {
     clearStoredHash();
     expect(localStorage.getItem('liarbar-mode')).toBe('score');
     expect(localStorage.getItem('liarbar-card-score-host')).toBe('{}');
+  });
+});
+
+describe('resolveInitialUnlock', () => {
+  beforeEach(installMemoryStorage);
+  afterEach(removeStorage);
+
+  it('is true when the gate is disabled (no configured hashes)', () => {
+    saveStoredHash('anything');
+    expect(resolveInitialUnlock('')).toBe(true);
+  });
+
+  it('is true when the stored hash is currently valid', () => {
+    saveStoredHash('bbb');
+    expect(resolveInitialUnlock('aaa,bbb')).toBe(true);
+  });
+
+  it('clears and returns false when the stored hash is no longer valid', () => {
+    saveStoredHash('bbb');
+    expect(resolveInitialUnlock('aaa')).toBe(false);
+    expect(loadStoredHash()).toBeNull();
+  });
+
+  it('is false with nothing stored, and does not touch storage', () => {
+    expect(loadStoredHash()).toBeNull();
+    expect(resolveInitialUnlock('aaa,bbb')).toBe(false);
+    expect(loadStoredHash()).toBeNull();
   });
 });
 

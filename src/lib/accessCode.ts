@@ -12,7 +12,7 @@ const STORAGE_KEY = 'liarbar-access';
 
 /** Canonical form of a code: uppercase, no dashes, no whitespace. */
 export function normalizeCode(raw: string): string {
-  return raw.replace(/[\s-]/g, '').toUpperCase();
+  return raw.replace(/[\s‐-―-]/g, '').toUpperCase();
 }
 
 /** SHA-256 of the normalized code, as lowercase hex. */
@@ -75,6 +75,23 @@ export function clearStoredHash(): void {
   } catch {
     /* ignore */
   }
+}
+
+/**
+ * Whether the app should render unlocked on this load.
+ *
+ * Re-validates the stored hash against the current valid list, and clears a
+ * stored hash that is no longer valid so a stale value does not linger. This
+ * is what makes revoking a code eject people who already used it.
+ */
+export function resolveInitialUnlock(raw?: string): boolean {
+  if (!isGateEnabled(raw)) return true;
+  const stored = loadStoredHash();
+  if (isHashValid(stored, raw)) return true;
+  // Stored hash is no longer on the valid list (revoked, or the list changed).
+  // Drop it so a stale value does not linger.
+  if (stored) clearStoredHash();
+  return false;
 }
 
 // Fail-open is deliberate: no configuration means no gate, so `npm run dev` and

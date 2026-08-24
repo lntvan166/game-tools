@@ -109,9 +109,12 @@ list on every load.
 
 **What this is.** A doorbell, not a lock. This is a static site — the
 JavaScript bundle is public and the check runs in the browser, so anyone
-willing to open developer tools can bypass it. It stops casual visitors who
-happen to find the URL; it is not access control. If you need real
-restriction, use Vercel's Deployment Protection instead.
+willing to open developer tools can bypass it. Anyone can also set the
+`localStorage` key by hand, and the hashes are unsalted SHA-256 of an
+8-character code drawn from a 32-character alphabet, which is brute-forceable
+offline by anyone who extracts them and is willing to spend GPU time. It stops
+casual visitors who happen to find the URL; it is not access control. If you
+need real restriction, use Vercel's Deployment Protection instead.
 
 ## Project Structure
 

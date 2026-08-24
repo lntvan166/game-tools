@@ -1,12 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
-  isGateEnabled,
   isHashValid,
   hashCode,
   normalizeCode,
-  loadStoredHash,
   saveStoredHash,
-  clearStoredHash,
+  resolveInitialUnlock,
 } from '../lib/accessCode';
 
 interface AccessGateProps {
@@ -19,26 +17,11 @@ function formatInput(raw: string): string {
   return stripped.length > 4 ? `${stripped.slice(0, 4)}-${stripped.slice(4)}` : stripped;
 }
 
-/**
- * Decide once, synchronously, whether the app is already unlocked.
- *
- * This runs as lazy useState initial state rather than in an effect so the app
- * renders unlocked on the very first paint — no flash of the gate for a
- * returning user. It is synchronous because what we store is the accepted
- * code's hash, so re-validation is a string comparison, not a hash computation.
- */
-function initiallyUnlocked(): boolean {
-  if (!isGateEnabled()) return true;
-  const stored = loadStoredHash();
-  if (isHashValid(stored)) return true;
-  // Stored hash is no longer on the valid list (revoked, or the list changed).
-  // Drop it so a stale value does not linger.
-  if (stored) clearStoredHash();
-  return false;
-}
-
 const AccessGate: React.FC<AccessGateProps> = ({ children }) => {
-  const [unlocked, setUnlocked] = useState<boolean>(initiallyUnlocked);
+  // Lazy initializer, not an effect: this renders the app unlocked on the very
+  // first paint for a returning user, with no flash of the gate. See
+  // resolveInitialUnlock() in ../lib/accessCode for the revocation behavior.
+  const [unlocked, setUnlocked] = useState<boolean>(resolveInitialUnlock);
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
   const [checking, setChecking] = useState(false);

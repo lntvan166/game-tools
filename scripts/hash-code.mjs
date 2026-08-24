@@ -12,7 +12,7 @@ import { createHash } from 'node:crypto';
 
 /** Mirror of normalizeCode() in src/lib/accessCode.ts. */
 function normalizeCode(raw) {
-  return raw.replace(/[\s-]/g, '').toUpperCase();
+  return raw.replace(/[\s‐-―-]/g, '').toUpperCase();
 }
 
 function hashCode(raw) {
@@ -27,11 +27,13 @@ if (codes.length === 0) {
   process.exit(1);
 }
 
-for (const code of codes) {
-  console.log(`${code}  ->  ${hashCode(code)}`);
+const hashes = codes.map(hashCode);
+
+for (let i = 0; i < codes.length; i++) {
+  console.log(`${codes[i]}  ->  ${hashes[i]}`);
 }
 
-if (codes.length > 1) {
+if (codes.length >= 1) {
   console.log('\nComma-separated, for VITE_ACCESS_CODE_HASHES:');
-  console.log(codes.map(hashCode).join(','));
+  console.log(hashes.join(','));
 }
