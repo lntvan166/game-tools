@@ -116,7 +116,7 @@ const HostScore: React.FC = () => {
 
       <div className="scoreboard">
         <h3 className="scoreboard-title">Scoreboard</h3>
-        <div className="scoreboard-header">
+        <div className={`scoreboard-header${showMoney ? ' has-money' : ''}`}>
           <span className="scoreboard-col-player">Player</span>
           <span className="scoreboard-col-score">Score</span>
           {showMoney && <span className="scoreboard-col-money">Money</span>}
@@ -173,7 +173,7 @@ const HostScore: React.FC = () => {
           config={configEdit}
           onChange={setConfigEdit}
           onSave={handleConfigSave}
-          onClose={() => setShowConfig(false)}
+          onClose={() => { setConfigEdit(game.config); setShowConfig(false); }}
         />
       )}
 

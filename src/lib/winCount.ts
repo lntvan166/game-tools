@@ -12,7 +12,7 @@ export interface WinCountConfig {
 
 export interface WinCountRound {
   winnerId: string;
-  /** Config in force when the round was recorded; edits to config do not repice it. */
+  /** Config in force when the round was recorded; edits to config do not reprice it. */
   configSnapshot?: WinCountConfig;
 }
 
@@ -83,6 +83,16 @@ export function calcWinCountRoundMoney(
   return money;
 }
 
+/**
+ * Shared round-traversal scaffold for calcWinCountTotalScores and
+ * calcWinCountTotalMoney. Both must walk rounds identically, so the
+ * traversal lives in one place: `calc` receives each round, the game
+ * config, and playerIds, and returns that round's per-player contribution
+ * to the total.
+ *
+ * This is intentionally parallel to `sumOverRounds` in `hostScore.ts` — a
+ * fix to one likely applies to the other too.
+ */
 function sumOverRounds(
   game: WinCountGame,
   calc: (

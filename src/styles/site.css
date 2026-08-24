@@ -209,6 +209,7 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 @media (min-width:480px){.score-btn{padding:8px 16px;font-size:14px;min-height:auto}}
 .score-btn::before,.score-btn::after{display:none !important}
 .score-btn:hover{color:#fff;border-color:#888}
+.score-btn:disabled{opacity:.4;cursor:not-allowed}
 .score-btn-primary{border-color:#d3a446;color:#d3a446}
 .score-btn-primary:hover{color:#fff;border-color:#d3a446;background:rgba(211,164,70,.15)}
 .score-btn-secondary{border-color:#555;color:#888}
@@ -219,11 +220,15 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 @media (min-width:480px){.scoreboard .scoreboard-title,.score-round-history .scoreboard-title{font-size:1.1rem;margin:0 0 12px 0}}
 .scoreboard-header{display:grid;grid-template-columns:1fr 56px;gap:0;padding:4px 6px;font-size:11px;color:#888;font-weight:600;border-bottom:1px solid #444;flex-shrink:0;background:#2a2a2a}
 @media (min-width:480px){.scoreboard-header{padding:6px 10px;font-size:13px;grid-template-columns:1fr 64px}}
+.scoreboard-header.has-money{grid-template-columns:1fr 56px 84px}
+@media (min-width:480px){.scoreboard-header.has-money{grid-template-columns:1fr 64px 96px}}
 .scoreboard-col-player,.scoreboard-col-score{text-align:left}
 .scoreboard-body{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;background:#2a2a2a}
 .scoreboard-table{width:100%;border-collapse:collapse;table-layout:fixed}
 .scoreboard-table col:nth-child(2){width:56px}
 @media (min-width:480px){.scoreboard-table col:nth-child(2){width:64px}}
+.scoreboard-table col:nth-child(3){width:84px}
+@media (min-width:480px){.scoreboard-table col:nth-child(3){width:96px}}
 .scoreboard-table td{padding:4px 6px;text-align:left;border-bottom:1px solid #444;font-size:11px}
 .scoreboard-table td:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (min-width:480px){.scoreboard-table td{padding:6px 10px;font-size:13px}}
@@ -362,7 +367,7 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 @media (min-width:480px){.host-col-host{min-width:80px}}
 .host-host-name{color:#d3a446;font-weight:600}
 .host-player-count-select{width:auto;min-width:80px}
-.host-new-game-form .score-new-game-form{max-height:50vh;overflow-y:auto} 
+.score-new-game-form.host-new-game-form{max-height:50vh;overflow-y:auto}
 /* Win Count winner picker */
 .win-winner-fieldset{border:none;padding:0;margin:0 0 12px}
 .win-winner-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
@@ -374,11 +379,10 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .win-winner-option span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Money column + history view toggle (shared by all three score modes) */
-.scoreboard-col-money{text-align:right}
 .scoreboard-money{color:#8fbf7f;white-space:nowrap}
 .score-history-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .score-view-toggle{display:inline-flex;border:1px solid #555;border-radius:4px;overflow:hidden}
-.score-view-toggle-btn{padding:4px 10px;border:none;background:transparent;color:#aaa;font-family:inherit;font-size:11px;cursor:pointer;transition:background .15s,color .15s}
+.score-view-toggle-btn{height:auto;padding:4px 10px;border:none;background:transparent;color:#aaa;font-family:inherit;font-size:11px;cursor:pointer;transition:background .15s,color .15s}
 .score-view-toggle-btn::before,.score-view-toggle-btn::after{display:none !important}
 .score-view-toggle-btn:hover{color:#fff}
 .score-view-toggle-btn.active{background:#d3a446;color:#1a1a1a}

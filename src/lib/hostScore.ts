@@ -91,6 +91,11 @@ export function calcHostRoundPoints(
  * calcHostTotalMoney. Both must walk rounds identically, so the traversal
  * lives in one place: `calc` receives each round, the game config, and
  * playerIds, and returns that round's per-player contribution to the total.
+ *
+ * This is intentionally parallel to `sumOverRounds` in `winCount.ts` — a
+ * fix to one likely applies to the other too. (The `tienLenScore.ts`
+ * version genuinely differs — it needs per-round `migrateConfig` — so it is
+ * not part of this pairing.)
  */
 function sumOverRounds(
   game: HostGame,

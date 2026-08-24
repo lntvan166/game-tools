@@ -105,7 +105,7 @@ const WinCountScore: React.FC = () => {
 
       <div className="scoreboard">
         <h3 className="scoreboard-title">Scoreboard</h3>
-        <div className="scoreboard-header">
+        <div className={`scoreboard-header${showMoney ? ' has-money' : ''}`}>
           <span className="scoreboard-col-player">Player</span>
           <span className="scoreboard-col-score">Wins</span>
           {showMoney && <span className="scoreboard-col-money">Money</span>}
@@ -200,10 +200,10 @@ const WinCountScore: React.FC = () => {
       )}
 
       {showResetConfirm && (
-        <div className="score-modal-overlay" onClick={() => setShowResetConfirm(false)} role="dialog" aria-modal="true">
+        <div className="score-modal-overlay" onClick={() => setShowResetConfirm(false)} role="dialog" aria-modal="true" aria-labelledby="wincount-reset-confirm-title">
           <div className="score-modal" onClick={(e) => e.stopPropagation()}>
-            <h2 className="score-modal-title">Reset scores?</h2>
-            <p className="score-round-detail-parts">This clears every round. Players and config stay.</p>
+            <h2 id="wincount-reset-confirm-title" className="score-modal-title">Reset scores?</h2>
+            <p className="score-reset-hint">This clears every round. Players and config stay.</p>
             <div className="score-modal-actions">
               <button type="button" className="score-btn score-btn-secondary" onClick={() => setShowResetConfirm(false)}>
                 Cancel
@@ -217,9 +217,9 @@ const WinCountScore: React.FC = () => {
       )}
 
       {roundToDelete !== null && (
-        <div className="score-modal-overlay" onClick={() => setRoundToDelete(null)} role="dialog" aria-modal="true">
+        <div className="score-modal-overlay" onClick={() => setRoundToDelete(null)} role="dialog" aria-modal="true" aria-labelledby="wincount-delete-round-title">
           <div className="score-modal" onClick={(e) => e.stopPropagation()}>
-            <h2 className="score-modal-title">Delete round #{roundToDelete + 1}?</h2>
+            <h2 id="wincount-delete-round-title" className="score-modal-title">Delete round #{roundToDelete + 1}?</h2>
             <div className="score-modal-actions">
               <button type="button" className="score-btn score-btn-secondary" onClick={() => setRoundToDelete(null)}>
                 Cancel
@@ -233,8 +233,9 @@ const WinCountScore: React.FC = () => {
       )}
 
       {showNewGameModal && (
-        <div className="score-modal-overlay" onClick={() => setShowNewGameModal(false)} role="dialog" aria-modal="true">
+        <div className="score-modal-overlay" onClick={() => setShowNewGameModal(false)} role="dialog" aria-modal="true" aria-labelledby="wincount-new-game-title">
           <div className="score-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 id="wincount-new-game-title" className="score-modal-title">New Game</h2>
             <WinCountNewGameForm onSubmit={handleNewGameFromModal} onCancel={() => setShowNewGameModal(false)} />
           </div>
         </div>
