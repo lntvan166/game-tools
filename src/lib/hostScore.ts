@@ -1,10 +1,18 @@
+import { resolveMoneyRate, scalePointsToMoney } from './money';
+
 export interface Player {
   id: string;
   name: string;
 }
 
 export interface HostConfig {
+  /** Points per bet. Pre-existing; this is points, not money. */
   betAmount: number;
+  /**
+   * Money per point, raw currency. Optional on purpose: `undefined` marks a
+   * round recorded before the money feature, which inherits the current rate.
+   */
+  moneyRate?: number;
 }
 
 export interface HostPlayerResult {
@@ -34,6 +42,7 @@ function genId(): string {
 
 export const DEFAULT_HOST_CONFIG: HostConfig = {
   betAmount: 1,
+  moneyRate: 0,
 };
 
 export function createHostGame(playerNames: string[]): HostGame {
@@ -77,19 +86,39 @@ export function calcHostRoundPoints(
   return points;
 }
 
-export function calcHostTotalScores(game: HostGame): Record<string, number> {
+/**
+ * Shared round-traversal scaffold for calcHostTotalScores and
+ * calcHostTotalMoney. Both must walk rounds identically, so the traversal
+ * lives in one place: `calc` receives each round, the game config, and
+ * playerIds, and returns that round's per-player contribution to the total.
+ */
+function sumOverRounds(
+  game: HostGame,
+  calc: (round: HostRoundResult, config: HostConfig, playerIds: string[]) => Record<string, number>
+): Record<string, number> {
   const totals: Record<string, number> = {};
   game.players.forEach((p) => (totals[p.id] = 0));
   const playerIds = game.players.map((p) => p.id);
 
   game.rounds.forEach((round) => {
-    const roundPts = calcHostRoundPoints(round, game.config, playerIds);
-    Object.entries(roundPts).forEach(([id, pts]) => {
-      totals[id] = (totals[id] ?? 0) + pts;
+    const perRound = calc(round, game.config, playerIds);
+    Object.entries(perRound).forEach(([id, v]) => {
+      totals[id] = (totals[id] ?? 0) + v;
     });
   });
 
   return totals;
+}
+
+export function calcHostTotalScores(game: HostGame): Record<string, number> {
+  return sumOverRounds(game, calcHostRoundPoints);
+}
+
+export function calcHostTotalMoney(game: HostGame): Record<string, number> {
+  return sumOverRounds(game, (round, config, playerIds) => {
+    const rate = resolveMoneyRate(round.configSnapshot?.moneyRate, config.moneyRate);
+    return scalePointsToMoney(calcHostRoundPoints(round, config, playerIds), rate);
+  });
 }
 
 export function loadHostGame(): HostGame | null {

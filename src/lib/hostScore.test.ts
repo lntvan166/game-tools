@@ -1,6 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { createHostGame, calcHostTotalScores } from './hostScore';
+import {
+  createHostGame,
+  calcHostTotalScores,
+  calcHostTotalMoney,
+  addHostRound,
+  DEFAULT_HOST_CONFIG,
+} from './hostScore';
 import type { HostGame, HostRoundResult } from './hostScore';
+
+function hostGame(moneyRate: number): HostGame {
+  const g = createHostGame(['Host', 'B', 'C']);
+  return { ...g, config: { ...g.config, moneyRate } };
+}
+
+/** Host wins against both players at 1x. */
+function sweepRound(hostId: string, otherIds: string[]): HostRoundResult {
+  const results: HostRoundResult['results'] = {};
+  otherIds.forEach((id) => (results[id] = { result: 'lose', multiplier: 1 }));
+  return { hostId, results };
+}
 
 describe('calcHostTotalScores regression (hardcoded expected values)', () => {
   // Guards the shared round-traversal scaffold used by both calcHostTotalScores
@@ -59,5 +77,64 @@ describe('calcHostTotalScores regression (hardcoded expected values)', () => {
     expect(scores[hostId]).toBe(-5);
     expect(scores[bId]).toBe(4);
     expect(scores[cId]).toBe(1);
+  });
+});
+
+describe('moneyRate config plumbing', () => {
+  it('defaults to 0 and leaves betAmount alone', () => {
+    expect(DEFAULT_HOST_CONFIG.moneyRate).toBe(0);
+    expect(DEFAULT_HOST_CONFIG.betAmount).toBe(1);
+  });
+});
+
+describe('calcHostTotalMoney', () => {
+  it('is points times the rate', () => {
+    const g = hostGame(1000);
+    const [hostId, ...others] = g.players.map((p) => p.id);
+    const game = addHostRound(g, sweepRound(hostId, others));
+
+    const scores = calcHostTotalScores(game);
+    const money = calcHostTotalMoney(game);
+    expect(scores[hostId]).toBe(2);
+    game.players.forEach((p) => expect(money[p.id]).toBe(scores[p.id] * 1000));
+  });
+
+  it('stays zero-sum', () => {
+    const g = hostGame(1000);
+    const [hostId, ...others] = g.players.map((p) => p.id);
+    const game = addHostRound(g, sweepRound(hostId, others));
+    expect(Object.values(calcHostTotalMoney(game)).reduce((s, v) => s + v, 0)).toBe(0);
+  });
+
+  it('is all zeros when no rate is set', () => {
+    const g = hostGame(0);
+    const [hostId, ...others] = g.players.map((p) => p.id);
+    const game = addHostRound(g, sweepRound(hostId, others));
+    expect(Object.values(calcHostTotalMoney(game)).every((v) => v === 0)).toBe(true);
+  });
+
+  it('keeps the rate a round was recorded at when the game rate later changes', () => {
+    const g = hostGame(1000);
+    const [hostId, ...others] = g.players.map((p) => p.id);
+    const recorded = addHostRound(g, sweepRound(hostId, others));
+    const repriced: HostGame = { ...recorded, config: { ...recorded.config, moneyRate: 9000 } };
+
+    const scores = calcHostTotalScores(repriced);
+    const money = calcHostTotalMoney(repriced);
+    repriced.players.forEach((p) => expect(money[p.id]).toBe(scores[p.id] * 1000));
+  });
+
+  it('prices a legacy round with no snapshot rate at the current rate', () => {
+    const g = hostGame(5000);
+    const [hostId, ...others] = g.players.map((p) => p.id);
+    const legacySnapshot = { betAmount: g.config.betAmount };
+    const game: HostGame = {
+      ...g,
+      rounds: [{ ...sweepRound(hostId, others), configSnapshot: legacySnapshot }],
+    };
+
+    const scores = calcHostTotalScores(game);
+    const money = calcHostTotalMoney(game);
+    game.players.forEach((p) => expect(money[p.id]).toBe(scores[p.id] * 5000));
   });
 });
