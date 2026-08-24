@@ -244,7 +244,7 @@ export function migrateConfig(config: Record<string, unknown>): TienLenConfig {
     pointsToiTrangPerLoser: c.pointsToiTrangPerLoser ?? DEFAULT_CONFIG.pointsToiTrangPerLoser,
     pointsRucPerPerson: c.pointsRucPerPerson ?? c.pointsRuc1 ?? DEFAULT_CONFIG.pointsRucPerPerson,
     // Deliberately NOT `?? DEFAULT_CONFIG.moneyRate`. migrateConfig also runs
-    // over configSnapshot, and defaulting to 0 there would repice every legacy
+    // over configSnapshot, and defaulting to 0 there would reprice every legacy
     // round at zero forever.
     moneyRate: c.moneyRate,
   };
@@ -319,25 +319,23 @@ export function calcRoundPoints(
   return points;
 }
 
-export function calcTotalScores(game: TienLenGame): Record<string, number> {
-  const totals: Record<string, number> = {};
-  game.players.forEach((p) => (totals[p.id] = 0));
-  const playerIds = game.players.map((p) => p.id);
-  const config = migrateConfig(game.config as unknown as Record<string, unknown>);
-
-  game.rounds.forEach((round) => {
-    const migrated = migrateRound(round as unknown as Record<string, unknown>);
-    const roundConfig = migrated.configSnapshot ? migrateConfig(migrated.configSnapshot as unknown as Record<string, unknown>) : config;
-    const roundPts = calcRoundPoints(migrated, roundConfig, playerIds);
-    Object.entries(roundPts).forEach(([id, pts]) => {
-      totals[id] = (totals[id] ?? 0) + pts;
-    });
-  });
-
-  return totals;
-}
-
-export function calcTotalMoney(game: TienLenGame): Record<string, number> {
+/**
+ * Shared round-traversal scaffold for calcTotalScores and calcTotalMoney.
+ * Resolving a round's config (configSnapshot vs. current game.config) must
+ * happen identically for both scoring and pricing, so it lives in one place:
+ * `calc` receives the migrated round, its resolved config, the game-level
+ * config (money needs both to call resolveMoneyRate), and playerIds, and
+ * returns that round's per-player contribution to the total.
+ */
+function sumOverRounds(
+  game: TienLenGame,
+  calc: (
+    round: RoundResult,
+    roundConfig: TienLenConfig,
+    gameConfig: TienLenConfig,
+    playerIds: string[]
+  ) => Record<string, number>
+): Record<string, number> {
   const totals: Record<string, number> = {};
   game.players.forEach((p) => (totals[p.id] = 0));
   const playerIds = game.players.map((p) => p.id);
@@ -348,17 +346,26 @@ export function calcTotalMoney(game: TienLenGame): Record<string, number> {
     const roundConfig = migrated.configSnapshot
       ? migrateConfig(migrated.configSnapshot as unknown as Record<string, unknown>)
       : config;
-    const rate = resolveMoneyRate(roundConfig.moneyRate, config.moneyRate);
-    const roundMoney = scalePointsToMoney(
-      calcRoundPoints(migrated, roundConfig, playerIds),
-      rate
-    );
-    Object.entries(roundMoney).forEach(([id, amount]) => {
-      totals[id] = (totals[id] ?? 0) + amount;
+    const perRound = calc(migrated, roundConfig, config, playerIds);
+    Object.entries(perRound).forEach(([id, v]) => {
+      totals[id] = (totals[id] ?? 0) + v;
     });
   });
 
   return totals;
+}
+
+export function calcTotalScores(game: TienLenGame): Record<string, number> {
+  return sumOverRounds(game, (round, roundConfig, _gameConfig, playerIds) =>
+    calcRoundPoints(round, roundConfig, playerIds)
+  );
+}
+
+export function calcTotalMoney(game: TienLenGame): Record<string, number> {
+  return sumOverRounds(game, (round, roundConfig, gameConfig, playerIds) => {
+    const rate = resolveMoneyRate(roundConfig.moneyRate, gameConfig.moneyRate);
+    return scalePointsToMoney(calcRoundPoints(round, roundConfig, playerIds), rate);
+  });
 }
 
 export function loadGame(): TienLenGame | null {
