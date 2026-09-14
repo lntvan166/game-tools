@@ -252,6 +252,12 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .scoreboard-table.wincount-total.has-money col:nth-child(3){width:78px}
 .scoreboard-table.wincount-total.has-money col:nth-child(4){width:46px}
 @media (min-width:480px){.scoreboard-table.wincount-total col:nth-child(2){width:64px}.scoreboard-table.wincount-total col:nth-child(3){width:64px}.scoreboard-table.wincount-total.has-money col:nth-child(2){width:56px}.scoreboard-table.wincount-total.has-money col:nth-child(3){width:96px}.scoreboard-table.wincount-total.has-money col:nth-child(4){width:56px}}
+.wincount-roster-existing{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.wincount-roster-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#fff;cursor:pointer}
+.wincount-roster-row input[type=checkbox]{width:16px;height:16px;accent-color:#d3a446;flex-shrink:0}
+.wincount-add-player-btn{align-self:flex-start;font-size:11px;padding:4px 8px}
+.wincount-roster-error{color:#d97a7a;font-size:11px;margin:4px 0 0}
+@media (min-width:480px){.wincount-roster-row{font-size:13px}.wincount-roster-error{font-size:12px}}
 .score-round-history{margin-top:12px;background:#2a2a2a;border:1px solid #555;border-radius:8px;padding:10px;max-height:280px;display:flex;flex-direction:column;overflow:hidden;min-width:0;width:100%;max-width:100%;box-sizing:border-box}
 @media (min-width:480px){.score-round-history{padding:16px;max-height:260px}}
 .score-round-table-wrap{flex:1;min-height:0;min-width:0;overflow:auto;-webkit-overflow-scrolling:touch;width:100%;max-width:100%;background:#2a2a2a}
