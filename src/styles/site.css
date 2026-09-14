@@ -234,6 +234,24 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 @media (min-width:480px){.scoreboard-table td{padding:6px 10px;font-size:13px}}
 .scoreboard-table td{color:#fff}
 .scoreboard-value{font-weight:700;color:#d3a446}
+.wincount-game-tabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;flex-shrink:0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.wincount-game-tabs::-webkit-scrollbar{display:none}
+.wincount-game-tab{flex:0 0 auto;padding:5px 10px;border:1px solid #555;border-radius:12px;background:transparent;color:#aaa;font-family:inherit;font-size:11px;cursor:pointer;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.wincount-game-tab::before,.wincount-game-tab::after{display:none !important}
+.wincount-game-tab:hover{color:#fff}
+.wincount-game-tab.active{color:#1a1a1a;background:#d3a446;border-color:#d3a446;font-weight:700}
+@media (min-width:480px){.wincount-game-tab{padding:6px 12px;font-size:13px}}
+.scoreboard-col-games{text-align:left}
+.scoreboard-games{color:#aaa}
+.scoreboard-header.wincount-total{grid-template-columns:1fr 48px 50px}
+.scoreboard-header.wincount-total.has-money{grid-template-columns:1fr 44px 78px 46px}
+@media (min-width:480px){.scoreboard-header.wincount-total{grid-template-columns:1fr 64px 64px}.scoreboard-header.wincount-total.has-money{grid-template-columns:1fr 56px 96px 56px}}
+.scoreboard-table.wincount-total col:nth-child(2){width:48px}
+.scoreboard-table.wincount-total col:nth-child(3){width:50px}
+.scoreboard-table.wincount-total.has-money col:nth-child(2){width:44px}
+.scoreboard-table.wincount-total.has-money col:nth-child(3){width:78px}
+.scoreboard-table.wincount-total.has-money col:nth-child(4){width:46px}
+@media (min-width:480px){.scoreboard-table.wincount-total col:nth-child(2){width:64px}.scoreboard-table.wincount-total col:nth-child(3){width:64px}.scoreboard-table.wincount-total.has-money col:nth-child(2){width:56px}.scoreboard-table.wincount-total.has-money col:nth-child(3){width:96px}.scoreboard-table.wincount-total.has-money col:nth-child(4){width:56px}}
 .score-round-history{margin-top:12px;background:#2a2a2a;border:1px solid #555;border-radius:8px;padding:10px;max-height:280px;display:flex;flex-direction:column;overflow:hidden;min-width:0;width:100%;max-width:100%;box-sizing:border-box}
 @media (min-width:480px){.score-round-history{padding:16px;max-height:260px}}
 .score-round-table-wrap{flex:1;min-height:0;min-width:0;overflow:auto;-webkit-overflow-scrolling:touch;width:100%;max-width:100%;background:#2a2a2a}
