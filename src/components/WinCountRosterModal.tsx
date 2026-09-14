@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { SessionPlayer } from '../lib/session';
-import { fillBlankNames, findDuplicateNameIndex } from '../lib/session';
+import { fillBlankNames, findDuplicateNameIndex, nameKey } from '../lib/session';
 import { MIN_WIN_COUNT_PLAYERS, MAX_WIN_COUNT_PLAYERS } from '../lib/winCount';
 import { formatMoney, formatMoneySigned } from '../lib/money';
 
@@ -46,7 +46,13 @@ export const WinCountRosterForm: React.FC<WinCountRosterFormProps> = ({
   const allNames = [...checkedExisting.map((p) => p.name), ...added];
   const filled = fillBlankNames(allNames);
   const duplicateIndex = findDuplicateNameIndex(filled);
-  const duplicateName = duplicateIndex === null ? null : filled[duplicateIndex];
+  // Report the spelling already on the roster, not the one just typed: seeing
+  // '"linh" is already in this game' next to a row reading "Linh" reads as a bug.
+  const duplicateName =
+    duplicateIndex === null
+      ? null
+      : filled.find((n, i) => i < duplicateIndex && nameKey(n) === nameKey(filled[duplicateIndex])) ??
+        filled[duplicateIndex];
   const count = filled.length;
 
   let error: string | null = null;

@@ -1,32 +1,47 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  loadWinCountGame,
-  saveWinCountGame,
-  createWinCountGame,
+  loadWinCountSession,
+  saveWinCountSession,
+  createWinCountSession,
+  startWinCountGame,
+  replaceGame,
   resetWinCountGame,
   addWinCountRound,
   updateWinCountRound,
   removeWinCountRound,
   calcWinCountTotalScores,
   calcWinCountTotalMoney,
+  calcWinCountSessionTotals,
   calcWinCountRoundPoints,
   calcWinCountRoundMoney,
+  shouldShowSessionMoney,
+  getGamePlayers,
   DEFAULT_WIN_COUNT_CONFIG,
   MIN_WIN_COUNT_PLAYERS,
   MAX_WIN_COUNT_PLAYERS,
 } from '../lib/winCount';
-import type { WinCountGame, WinCountConfig, WinCountRound, Player } from '../lib/winCount';
-import { formatMoney, formatMoneySigned, shouldShowMoney } from '../lib/money';
+import type { WinCountSession, WinCountGame, WinCountConfig, WinCountRound } from '../lib/winCount';
+import { createSessionPlayer } from '../lib/session';
+import type { SessionPlayer } from '../lib/session';
+import { formatMoney, formatMoneySigned } from '../lib/money';
 import AddWinRoundModal from './AddWinRoundModal';
 import ScoreViewToggle from './ScoreViewToggle';
 import type { ScoreView } from './ScoreViewToggle';
+import WinCountGameTabs from './WinCountGameTabs';
+import type { WinCountTab } from './WinCountGameTabs';
+import WinCountTotalBoard from './WinCountTotalBoard';
+import WinCountRosterModal, { WinCountRosterForm } from './WinCountRosterModal';
+import type { RosterResult } from './WinCountRosterModal';
 
 const WinCountScore: React.FC = () => {
-  const [game, setGame] = useState<WinCountGame | null>(() => loadWinCountGame());
+  const [session, setSession] = useState<WinCountSession | null>(() => loadWinCountSession());
+  // Opens on the session's active game, not on Total.
+  const [tab, setTab] = useState<WinCountTab>(session?.activeGameIndex ?? 0);
   const [showConfig, setShowConfig] = useState(false);
   const [showAddRound, setShowAddRound] = useState(false);
-  const [showNewGameModal, setShowNewGameModal] = useState(false);
+  const [showRosterModal, setShowRosterModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showNewSessionConfirm, setShowNewSessionConfirm] = useState(false);
   const [configEdit, setConfigEdit] = useState<WinCountConfig>(DEFAULT_WIN_COUNT_CONFIG);
   const [roundToDelete, setRoundToDelete] = useState<number | null>(null);
   const [roundToEdit, setRoundToEdit] = useState<number | null>(null);
@@ -34,120 +49,212 @@ const WinCountScore: React.FC = () => {
   const [historyView, setHistoryView] = useState<ScoreView>('points');
 
   useEffect(() => {
-    if (game) {
-      saveWinCountGame(game);
-      setConfigEdit(game.config);
-    }
+    if (session) saveWinCountSession(session);
+  }, [session]);
+
+  const gameIndex = tab === 'total' ? -1 : tab;
+  const game: WinCountGame | null =
+    session && gameIndex >= 0 ? session.games[gameIndex] ?? null : null;
+
+  useEffect(() => {
+    if (game) setConfigEdit(game.config);
   }, [game]);
 
-  const handleNewGame = useCallback((names: string[]) => {
-    setGame(createWinCountGame(names));
-    setShowConfig(true);
+  /** Write an edited game back into the session. */
+  const putGame = useCallback(
+    (next: WinCountGame) => {
+      setSession((prev) => (prev ? replaceGame(prev, gameIndex, next) : prev));
+    },
+    [gameIndex]
+  );
+
+  const handleNewSession = useCallback((result: RosterResult) => {
+    const base = createWinCountSession(result.added);
+    const config = { betAmount: result.betAmount };
+    setSession({
+      ...base,
+      config,
+      games: base.games.map((g) => ({ ...g, config })),
+    });
+    setTab(0);
+    setShowRosterModal(false);
   }, []);
 
-  const handleNewGameFromModal = useCallback((names: string[]) => {
-    setGame(createWinCountGame(names));
-    setShowNewGameModal(false);
-    setShowConfig(true);
+  const handleNewGame = useCallback((result: RosterResult) => {
+    setSession((prev) => {
+      if (!prev) return prev;
+      const newPlayers = result.added.map(createSessionPlayer);
+      const withPlayers: WinCountSession = {
+        ...prev,
+        players: [...prev.players, ...newPlayers],
+      };
+      const playerIds = [
+        ...result.existing.filter((e) => e.playing).map((e) => e.id),
+        ...newPlayers.map((p) => p.id),
+      ];
+      const next = startWinCountGame(withPlayers, playerIds, { betAmount: result.betAmount });
+      setTab(next.activeGameIndex);
+      return next;
+    });
+    setShowRosterModal(false);
   }, []);
 
   const handleSaveRound = useCallback(
     (round: WinCountRound) => {
       if (!game) return;
-      setGame(roundToEdit !== null ? updateWinCountRound(game, roundToEdit, round) : addWinCountRound(game, round));
+      putGame(
+        roundToEdit !== null
+          ? updateWinCountRound(game, roundToEdit, round)
+          : addWinCountRound(game, round)
+      );
       setShowAddRound(false);
       setRoundToEdit(null);
     },
-    [game, roundToEdit]
+    [game, roundToEdit, putGame]
   );
 
   const confirmRemoveRound = useCallback(() => {
     if (!game || roundToDelete === null) return;
-    setGame(removeWinCountRound(game, roundToDelete));
+    putGame(removeWinCountRound(game, roundToDelete));
     if (selectedRoundIndex !== null) {
       if (selectedRoundIndex === roundToDelete) setSelectedRoundIndex(null);
       else if (selectedRoundIndex > roundToDelete) setSelectedRoundIndex((i) => (i ?? 0) - 1);
     }
     setRoundToDelete(null);
-  }, [game, roundToDelete, selectedRoundIndex]);
+  }, [game, roundToDelete, selectedRoundIndex, putGame]);
 
   const confirmResetScores = useCallback(() => {
     if (!game) return;
-    setGame(resetWinCountGame(game));
+    putGame(resetWinCountGame(game));
     setShowResetConfirm(false);
-  }, [game]);
+  }, [game, putGame]);
 
-  if (!game) {
-    return <WinCountNewGameForm onSubmit={handleNewGame} />;
+  const confirmNewSession = useCallback(() => {
+    setSession(null);
+    setTab(0);
+    setShowNewSessionConfirm(false);
+  }, []);
+
+  if (!session) {
+    return (
+      <div className="tienlen-new-game">
+        <h3 className="scoreboard-title">New Session</h3>
+        <p className="score-new-game-hint">
+          Enter player names ({MIN_WIN_COUNT_PLAYERS}–{MAX_WIN_COUNT_PLAYERS})
+        </p>
+        <WinCountRosterForm
+          players={[]}
+          defaultBet={0}
+          submitLabel="Start"
+          onSubmit={handleNewSession}
+        />
+      </div>
+    );
   }
 
-  const scores = calcWinCountTotalScores(game);
-  const money = calcWinCountTotalMoney(game);
-  const sortedPlayers = [...game.players].sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0));
-  const showMoney = shouldShowMoney(
-    game.config.betAmount,
-    game.rounds.map((r) => r.configSnapshot?.betAmount)
-  );
+  const totals = calcWinCountSessionTotals(session);
+  const showMoney = shouldShowSessionMoney(session);
+  const gamePlayers: SessionPlayer[] = game ? getGamePlayers(session, game) : [];
+  const scores = game ? calcWinCountTotalScores(game) : {};
+  const money = game ? calcWinCountTotalMoney(game) : {};
+  const sortedPlayers = [...gamePlayers].sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0));
+  const gameLabel = gameIndex >= 0 ? `G${gameIndex + 1}` : '';
 
   return (
     <div className="wincount-score tienlen-score">
       <div className="score-header">
-        <button type="button" className="score-btn score-btn-secondary" onClick={() => setShowConfig(true)}>
+        <button
+          type="button"
+          className="score-btn score-btn-secondary"
+          onClick={() => setShowConfig(true)}
+          disabled={!game}
+        >
           Config
         </button>
-        <button type="button" className="score-btn score-btn-secondary" onClick={() => setShowResetConfirm(true)}>
+        <button
+          type="button"
+          className="score-btn score-btn-secondary"
+          onClick={() => setShowResetConfirm(true)}
+          disabled={!game}
+        >
           Reset Scores
         </button>
-        <button type="button" className="score-btn score-btn-secondary" onClick={() => setShowNewGameModal(true)}>
+        <button
+          type="button"
+          className="score-btn score-btn-secondary"
+          onClick={() => setShowRosterModal(true)}
+        >
           New Game
+        </button>
+        <button
+          type="button"
+          className="score-btn score-btn-secondary"
+          onClick={() => setShowNewSessionConfirm(true)}
+        >
+          New Session
         </button>
       </div>
 
-      <div className="scoreboard">
-        <h3 className="scoreboard-title">Scoreboard</h3>
-        <div className={`scoreboard-header${showMoney ? ' has-money' : ''}`}>
-          <span className="scoreboard-col-player">Player</span>
-          <span className="scoreboard-col-score">Wins</span>
-          {showMoney && <span className="scoreboard-col-money">Money</span>}
-        </div>
-        <div className="scoreboard-body">
-          <table className="scoreboard-table">
-            <colgroup>
-              <col />
-              <col />
-              {showMoney && <col />}
-            </colgroup>
-            <tbody>
-              {sortedPlayers.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.name}</td>
-                  <td className="scoreboard-value">{scores[p.id] ?? 0}</td>
-                  {showMoney && (
-                    <td className="scoreboard-value scoreboard-money">
-                      {formatMoneySigned(money[p.id] ?? 0)}
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <WinCountGameTabs gameCount={session.games.length} selected={tab} onSelect={setTab} />
 
-      <button
-        type="button"
-        className="score-btn score-btn-primary score-add-round-btn"
-        onClick={() => {
-          setRoundToEdit(null);
-          setShowAddRound(true);
-        }}
-      >
-        Add Round
-      </button>
+      {tab === 'total' ? (
+        <WinCountTotalBoard
+          players={session.players}
+          scores={totals.scores}
+          money={totals.money}
+          gamesPlayed={totals.gamesPlayed}
+          showMoney={showMoney}
+        />
+      ) : (
+        <div className="scoreboard">
+          <h3 className="scoreboard-title">Scoreboard — {gameLabel}</h3>
+          <div className={`scoreboard-header${showMoney ? ' has-money' : ''}`}>
+            <span className="scoreboard-col-player">Player</span>
+            <span className="scoreboard-col-score">Wins</span>
+            {showMoney && <span className="scoreboard-col-money">Money</span>}
+          </div>
+          <div className="scoreboard-body">
+            <table className="scoreboard-table">
+              <colgroup>
+                <col />
+                <col />
+                {showMoney && <col />}
+              </colgroup>
+              <tbody>
+                {sortedPlayers.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.name}</td>
+                    <td className="scoreboard-value">{scores[p.id] ?? 0}</td>
+                    {showMoney && (
+                      <td className="scoreboard-value scoreboard-money">
+                        {formatMoneySigned(money[p.id] ?? 0)}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-      {game.rounds.length > 0 && (
+      {game && (
+        <button
+          type="button"
+          className="score-btn score-btn-primary score-add-round-btn"
+          onClick={() => {
+            setRoundToEdit(null);
+            setShowAddRound(true);
+          }}
+        >
+          Add Round — {gameLabel}
+        </button>
+      )}
+
+      {game && game.rounds.length > 0 && (
         <WinCountRoundHistoryTable
           game={game}
+          players={gamePlayers}
           showMoney={showMoney}
           historyView={historyView}
           onHistoryViewChange={setHistoryView}
@@ -160,9 +267,9 @@ const WinCountScore: React.FC = () => {
         />
       )}
 
-      {showAddRound && (
+      {game && showAddRound && (
         <AddWinRoundModal
-          players={game.players}
+          players={gamePlayers}
           initialRound={roundToEdit !== null ? game.rounds[roundToEdit] : null}
           onSave={handleSaveRound}
           onClose={() => {
@@ -172,24 +279,26 @@ const WinCountScore: React.FC = () => {
         />
       )}
 
-      {selectedRoundIndex !== null && game.rounds[selectedRoundIndex] && (
+      {game && selectedRoundIndex !== null && game.rounds[selectedRoundIndex] && (
         <WinCountRoundDetailModal
           round={game.rounds[selectedRoundIndex]}
           roundIndex={selectedRoundIndex}
-          players={game.players}
+          players={gamePlayers}
           gameConfig={game.config}
           showMoney={showMoney}
           onClose={() => setSelectedRoundIndex(null)}
         />
       )}
 
-      {showConfig && (
+      {game && showConfig && (
         <WinCountConfigModal
           config={configEdit}
-          playerCount={game.players.length}
+          playerCount={gamePlayers.length}
+          gameLabel={gameLabel}
           onChange={setConfigEdit}
           onSave={() => {
-            setGame({ ...game, config: configEdit });
+            putGame({ ...game, config: configEdit });
+            setSession((prev) => (prev ? { ...prev, config: configEdit } : prev));
             setShowConfig(false);
           }}
           onClose={() => {
@@ -199,11 +308,11 @@ const WinCountScore: React.FC = () => {
         />
       )}
 
-      {showResetConfirm && (
+      {game && showResetConfirm && (
         <div className="score-modal-overlay" onClick={() => setShowResetConfirm(false)} role="dialog" aria-modal="true" aria-labelledby="wincount-reset-confirm-title">
           <div className="score-modal" onClick={(e) => e.stopPropagation()}>
-            <h2 id="wincount-reset-confirm-title" className="score-modal-title">Reset scores?</h2>
-            <p className="score-reset-hint">This clears every round. Players and config stay.</p>
+            <h2 id="wincount-reset-confirm-title" className="score-modal-title">Reset scores in {gameLabel}?</h2>
+            <p className="score-reset-hint">This clears every round in {gameLabel}. Players and config stay.</p>
             <div className="score-modal-actions">
               <button type="button" className="score-btn score-btn-secondary" onClick={() => setShowResetConfirm(false)}>
                 Cancel
@@ -216,7 +325,7 @@ const WinCountScore: React.FC = () => {
         </div>
       )}
 
-      {roundToDelete !== null && (
+      {game && roundToDelete !== null && (
         <div className="score-modal-overlay" onClick={() => setRoundToDelete(null)} role="dialog" aria-modal="true" aria-labelledby="wincount-delete-round-title">
           <div className="score-modal" onClick={(e) => e.stopPropagation()}>
             <h2 id="wincount-delete-round-title" className="score-modal-title">Delete round #{roundToDelete + 1}?</h2>
@@ -232,11 +341,45 @@ const WinCountScore: React.FC = () => {
         </div>
       )}
 
-      {showNewGameModal && (
-        <div className="score-modal-overlay" onClick={() => setShowNewGameModal(false)} role="dialog" aria-modal="true" aria-labelledby="wincount-new-game-title">
+      {showRosterModal && (
+        <WinCountRosterModal
+          title="New Game"
+          players={session.players}
+          defaultBet={session.config.betAmount}
+          submitLabel="Start"
+          onSubmit={handleNewGame}
+          onCancel={() => setShowRosterModal(false)}
+        />
+      )}
+
+      {showNewSessionConfirm && (
+        <div
+          className="score-modal-overlay"
+          onClick={() => setShowNewSessionConfirm(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="wincount-new-session-title"
+        >
           <div className="score-modal" onClick={(e) => e.stopPropagation()}>
-            <h2 id="wincount-new-game-title" className="score-modal-title">New Game</h2>
-            <WinCountNewGameForm onSubmit={handleNewGameFromModal} onCancel={() => setShowNewGameModal(false)} />
+            <h2 id="wincount-new-session-title" className="score-modal-title">
+              Start a new session?
+            </h2>
+            <p className="score-reset-hint">
+              This deletes all {session.games.length} game
+              {session.games.length === 1 ? '' : 's'} and the totals. It cannot be undone.
+            </p>
+            <div className="score-modal-actions">
+              <button
+                type="button"
+                className="score-btn score-btn-secondary"
+                onClick={() => setShowNewSessionConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button type="button" className="score-btn score-btn-primary" onClick={confirmNewSession}>
+                New Session
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -244,91 +387,9 @@ const WinCountScore: React.FC = () => {
   );
 };
 
-interface WinCountNewGameFormProps {
-  onSubmit: (names: string[]) => void;
-  onCancel?: () => void;
-}
-
-const WinCountNewGameForm: React.FC<WinCountNewGameFormProps> = ({ onSubmit, onCancel }) => {
-  const [playerCount, setPlayerCount] = useState(4);
-  const [names, setNames] = useState<string[]>(() => Array(4).fill(''));
-
-  const handlePlayerCountChange = (count: number) => {
-    setPlayerCount(count);
-    setNames((prev) => {
-      const next = [...prev];
-      while (next.length < count) next.push('');
-      return next.slice(0, count);
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(names.slice(0, playerCount).map((n, i) => n.trim() || `Player ${i + 1}`));
-  };
-
-  const countOptions = Array.from(
-    { length: MAX_WIN_COUNT_PLAYERS - MIN_WIN_COUNT_PLAYERS + 1 },
-    (_, i) => i + MIN_WIN_COUNT_PLAYERS
-  );
-
-  return (
-    <div className="tienlen-new-game">
-      {!onCancel && <h3 className="scoreboard-title">New Game</h3>}
-      <p className="score-new-game-hint">
-        Enter player names ({MIN_WIN_COUNT_PLAYERS}–{MAX_WIN_COUNT_PLAYERS})
-      </p>
-      <div className="score-new-game-player-count">
-        <span>Players:</span>
-        <select
-          value={playerCount}
-          onChange={(e) => handlePlayerCountChange(Number(e.target.value))}
-          className="score-input host-player-count-select"
-        >
-          {countOptions.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </select>
-      </div>
-      <form onSubmit={handleSubmit} className="score-new-game-form host-new-game-form">
-        {Array.from({ length: playerCount }, (_, i) => (
-          <label key={i} className="score-new-game-label">
-            <span>Player {i + 1}</span>
-            <input
-              type="text"
-              value={names[i] ?? ''}
-              onChange={(e) =>
-                setNames((prev) => {
-                  const next = [...prev];
-                  next[i] = e.target.value;
-                  return next;
-                })
-              }
-              placeholder={`Player ${i + 1}`}
-              maxLength={20}
-              className="score-input"
-            />
-          </label>
-        ))}
-        <div className="score-new-game-actions">
-          {onCancel && (
-            <button type="button" className="score-btn score-btn-secondary" onClick={onCancel}>
-              Cancel
-            </button>
-          )}
-          <button type="submit" className="score-btn score-btn-primary">
-            Start
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
 interface WinCountRoundHistoryTableProps {
   game: WinCountGame;
+  players: SessionPlayer[];
   showMoney: boolean;
   historyView: ScoreView;
   onHistoryViewChange: (v: ScoreView) => void;
@@ -339,6 +400,7 @@ interface WinCountRoundHistoryTableProps {
 
 const WinCountRoundHistoryTable: React.FC<WinCountRoundHistoryTableProps> = ({
   game,
+  players,
   showMoney,
   historyView,
   onHistoryViewChange,
@@ -346,7 +408,6 @@ const WinCountRoundHistoryTable: React.FC<WinCountRoundHistoryTableProps> = ({
   onEdit,
   onRemove,
 }) => {
-  const players = game.players;
   const playerIds = players.map((p) => p.id);
   const getName = (id: string) => players.find((p) => p.id === id)?.name ?? '?';
   const viewingMoney = showMoney && historyView === 'money';
@@ -433,7 +494,7 @@ const WinCountRoundHistoryTable: React.FC<WinCountRoundHistoryTableProps> = ({
 interface WinCountRoundDetailModalProps {
   round: WinCountRound;
   roundIndex: number;
-  players: Player[];
+  players: SessionPlayer[];
   gameConfig: WinCountConfig;
   showMoney: boolean;
   onClose: () => void;
@@ -489,6 +550,7 @@ const WinCountRoundDetailModal: React.FC<WinCountRoundDetailModalProps> = ({
 interface WinCountConfigModalProps {
   config: WinCountConfig;
   playerCount: number;
+  gameLabel: string;
   onChange: (c: WinCountConfig) => void;
   onSave: () => void;
   onClose: () => void;
@@ -497,6 +559,7 @@ interface WinCountConfigModalProps {
 const WinCountConfigModal: React.FC<WinCountConfigModalProps> = ({
   config,
   playerCount,
+  gameLabel,
   onChange,
   onSave,
   onClose,
@@ -507,7 +570,7 @@ const WinCountConfigModal: React.FC<WinCountConfigModalProps> = ({
   return (
     <div className="score-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="win-config-title">
       <div className="score-modal score-config-modal" onClick={(e) => e.stopPropagation()}>
-        <h2 id="win-config-title" className="score-modal-title">Config</h2>
+        <h2 id="win-config-title" className="score-modal-title">Config — {gameLabel}</h2>
         <section className="score-config-section">
           <h3 className="score-config-section-title">Money</h3>
           <label className="host-config-label">

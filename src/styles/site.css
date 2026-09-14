@@ -205,6 +205,9 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .score-content{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;-webkit-overflow-scrolling:touch;min-width:0}
 .tienlen-score{display:flex;flex-direction:column;gap:12px;padding-bottom:24px;min-width:0;width:100%}
 .score-header{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+/* Win Count has a fourth button (New Session); 3+1 wrapping looks broken, so pair them up. */
+.wincount-score .score-header{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media (min-width:480px){.wincount-score .score-header{display:flex;flex-wrap:wrap;justify-content:center}}
 .score-btn{padding:10px 14px;font-size:13px;border:2px solid #666;background:#222;color:#aaa;font-family:inherit;cursor:pointer;border-radius:6px;transition:color .2s,border-color .2s;min-height:44px}
 @media (min-width:480px){.score-btn{padding:8px 16px;font-size:14px;min-height:auto}}
 .score-btn::before,.score-btn::after{display:none !important}
