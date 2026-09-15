@@ -15,6 +15,7 @@ import {
   calcWinCountRoundPoints,
   calcWinCountRoundMoney,
   shouldShowSessionMoney,
+  setMoneyAdjustment,
   getGamePlayers,
   DEFAULT_WIN_COUNT_CONFIG,
   MIN_WIN_COUNT_PLAYERS,
@@ -129,6 +130,10 @@ const WinCountScore: React.FC = () => {
     setShowResetConfirm(false);
   }, [game, putGame]);
 
+  const handleAdjustmentChange = useCallback((playerId: string, amount: number) => {
+    setSession((prev) => (prev ? setMoneyAdjustment(prev, playerId, amount) : prev));
+  }, []);
+
   const confirmNewSession = useCallback(() => {
     setSession(null);
     setTab(0);
@@ -202,8 +207,10 @@ const WinCountScore: React.FC = () => {
           players={session.players}
           scores={totals.scores}
           money={totals.money}
+          adjustments={session.moneyAdjustments ?? {}}
           gamesPlayed={totals.gamesPlayed}
           showMoney={showMoney}
+          onAdjustmentChange={handleAdjustmentChange}
         />
       ) : (
         <div className="scoreboard">

@@ -16,6 +16,8 @@ import {
   removeWinCountRound,
   resetWinCountGame,
   DEFAULT_WIN_COUNT_CONFIG,
+  applyMoneyAdjustments,
+  setMoneyAdjustment,
 } from './winCount';
 import type { WinCountGame, WinCountSession } from './winCount';
 
@@ -337,5 +339,135 @@ describe('parseWinCountSession', () => {
     expect(parseWinCountSession({})).toBeNull();
     expect(parseWinCountSession({ players: [], games: [] })).toBeNull();
     expect(parseWinCountSession('nope')).toBeNull();
+  });
+});
+
+describe('money adjustments', () => {
+  it('adds a positive adjustment to what a player earned', () => {
+    expect(applyMoneyAdjustments({ p1: 10000, p2: -10000 }, { p1: 5000 })).toEqual({
+      p1: 15000,
+      p2: -10000,
+    });
+  });
+
+  it('subtracts a negative adjustment', () => {
+    expect(applyMoneyAdjustments({ p1: 10000 }, { p1: -25000 })).toEqual({ p1: -15000 });
+  });
+
+  it('leaves earned money alone when there are no adjustments', () => {
+    expect(applyMoneyAdjustments({ p1: 10000, p2: -10000 }, {})).toEqual({
+      p1: 10000,
+      p2: -10000,
+    });
+  });
+
+  it('keeps an adjustment for a player who has earned nothing yet', () => {
+    expect(applyMoneyAdjustments({}, { p1: 5000 })).toEqual({ p1: 5000 });
+  });
+
+  it('does not mutate the earned map it was given', () => {
+    const earned = { p1: 10000 };
+    applyMoneyAdjustments(earned, { p1: 5000 });
+    expect(earned).toEqual({ p1: 10000 });
+  });
+});
+
+describe('setMoneyAdjustment', () => {
+  it('records an adjustment for one player', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    const s = setMoneyAdjustment(session, ids[0], 20000);
+    expect(s.moneyAdjustments).toEqual({ [ids[0]]: 20000 });
+  });
+
+  it('drops the entry when the adjustment goes back to zero', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    let s = setMoneyAdjustment(session, ids[0], 20000);
+    s = setMoneyAdjustment(s, ids[0], 0);
+    expect(s.moneyAdjustments).toEqual({});
+  });
+
+  it('leaves rounds, wins and games untouched', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    const withRound = replaceGame(session, 0, addWinCountRound(session.games[0], { winnerId: ids[0] }));
+    const s = setMoneyAdjustment(withRound, ids[0], 20000);
+    expect(s.games).toEqual(withRound.games);
+    expect(calcWinCountSessionTotals(s).scores).toEqual(
+      calcWinCountSessionTotals(withRound).scores
+    );
+  });
+});
+
+describe('calcWinCountSessionTotals with adjustments', () => {
+  it('reports earned money and adjusted money separately', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    let s = replaceGame(session, 0, addWinCountRound(session.games[0], { winnerId: ids[0] }));
+    s = setMoneyAdjustment(s, ids[0], 20000);
+    const { earnedMoney, money } = calcWinCountSessionTotals(s);
+    expect(earnedMoney[ids[0]]).toBe(5000);
+    expect(money[ids[0]]).toBe(25000);
+    expect(money[ids[1]]).toBe(-5000);
+  });
+
+  it('never lets an adjustment reach wins or games played', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    let s = replaceGame(session, 0, addWinCountRound(session.games[0], { winnerId: ids[0] }));
+    s = setMoneyAdjustment(s, ids[0], 20000);
+    const { scores, gamesPlayed } = calcWinCountSessionTotals(s);
+    expect(scores).toEqual({ [ids[0]]: 1, [ids[1]]: 0 });
+    expect(gamesPlayed).toEqual({ [ids[0]]: 1, [ids[1]]: 1 });
+  });
+
+  it('leaves the per-game money calculation unadjusted', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    let s = replaceGame(session, 0, addWinCountRound(session.games[0], { winnerId: ids[0] }));
+    s = setMoneyAdjustment(s, ids[0], 20000);
+    expect(calcWinCountTotalMoney(s.games[0])).toEqual({ [ids[0]]: 5000, [ids[1]]: -5000 });
+  });
+});
+
+describe('shouldShowSessionMoney with adjustments', () => {
+  it('is true when an adjustment is set even though no round was ever priced', () => {
+    const { session, ids } = setup(['A', 'B'], 0);
+    const s = setMoneyAdjustment(session, ids[0], 20000);
+    expect(shouldShowSessionMoney(s)).toBe(true);
+  });
+
+  it('is false again once the adjustment is cleared', () => {
+    const { session, ids } = setup(['A', 'B'], 0);
+    let s = setMoneyAdjustment(session, ids[0], 20000);
+    s = setMoneyAdjustment(s, ids[0], 0);
+    expect(shouldShowSessionMoney(s)).toBe(false);
+  });
+});
+
+describe('parseWinCountSession adjustments', () => {
+  it('round-trips adjustments through storage', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    const s = setMoneyAdjustment(session, ids[0], -20000);
+    expect(parseWinCountSession(JSON.parse(JSON.stringify(s)))).toEqual(s);
+  });
+
+  it('gives a session saved before the feature an empty adjustment map', () => {
+    const { session } = setup(['A', 'B'], 5000);
+    const raw = JSON.parse(JSON.stringify(session));
+    delete raw.moneyAdjustments;
+    expect(parseWinCountSession(raw)!.moneyAdjustments).toEqual({});
+  });
+
+  it('drops non-numeric and non-finite adjustment values', () => {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    const raw = JSON.parse(JSON.stringify(session));
+    raw.moneyAdjustments = { [ids[0]]: 'lots', [ids[1]]: 5000, ghost: Infinity };
+    expect(parseWinCountSession(raw)!.moneyAdjustments).toEqual({ [ids[1]]: 5000 });
+  });
+
+  it('gives a migrated v1 session an empty adjustment map', () => {
+    const s = parseWinCountSession({
+      id: 'old',
+      players: [{ id: 'p1', name: 'Nam' }],
+      rounds: [],
+      createdAt: 1,
+    })!;
+    expect(s.moneyAdjustments).toEqual({});
   });
 });

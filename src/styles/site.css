@@ -247,14 +247,17 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .scoreboard-col-games{text-align:left}
 .scoreboard-games{color:#aaa}
 .scoreboard-header.wincount-total{grid-template-columns:1fr 48px 50px}
-.scoreboard-header.wincount-total.has-money{grid-template-columns:1fr 44px 78px 46px}
-@media (min-width:480px){.scoreboard-header.wincount-total{grid-template-columns:1fr 64px 64px}.scoreboard-header.wincount-total.has-money{grid-template-columns:1fr 56px 96px 56px}}
+.scoreboard-header.wincount-total.has-money{grid-template-columns:1fr 32px 64px 72px 38px}
+@media (min-width:480px){.scoreboard-header.wincount-total{grid-template-columns:1fr 64px 64px}.scoreboard-header.wincount-total.has-money{grid-template-columns:1fr 50px 84px 96px 50px}}
 .scoreboard-table.wincount-total col:nth-child(2){width:48px}
 .scoreboard-table.wincount-total col:nth-child(3){width:50px}
-.scoreboard-table.wincount-total.has-money col:nth-child(2){width:44px}
-.scoreboard-table.wincount-total.has-money col:nth-child(3){width:78px}
-.scoreboard-table.wincount-total.has-money col:nth-child(4){width:46px}
-@media (min-width:480px){.scoreboard-table.wincount-total col:nth-child(2){width:64px}.scoreboard-table.wincount-total col:nth-child(3){width:64px}.scoreboard-table.wincount-total.has-money col:nth-child(2){width:56px}.scoreboard-table.wincount-total.has-money col:nth-child(3){width:96px}.scoreboard-table.wincount-total.has-money col:nth-child(4){width:56px}}
+.scoreboard-table.wincount-total.has-money col:nth-child(2){width:32px}
+.scoreboard-table.wincount-total.has-money col:nth-child(3){width:64px}
+.scoreboard-table.wincount-total.has-money col:nth-child(4){width:72px}
+.scoreboard-table.wincount-total.has-money col:nth-child(5){width:38px}
+@media (min-width:480px){.scoreboard-table.wincount-total col:nth-child(2){width:64px}.scoreboard-table.wincount-total col:nth-child(3){width:64px}.scoreboard-table.wincount-total.has-money col:nth-child(2){width:50px}.scoreboard-table.wincount-total.has-money col:nth-child(3){width:84px}.scoreboard-table.wincount-total.has-money col:nth-child(4){width:96px}.scoreboard-table.wincount-total.has-money col:nth-child(5){width:50px}}
+.scoreboard-col-adjust{text-align:left}
+.scoreboard-table td.scoreboard-adjust{padding:2px 3px}
 .wincount-roster-existing{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
 .wincount-roster-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#fff;cursor:pointer}
 .wincount-roster-row input[type=checkbox]{width:16px;height:16px;accent-color:#d3a446;flex-shrink:0}
@@ -425,3 +428,10 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .access-gate-input{width:100%;text-align:center;letter-spacing:.18em;font-size:18px}
 .access-gate-error{margin:0;color:#d36a46;font-size:13px;text-align:center}
 .access-gate-actions{justify-content:center}
+
+/* Compact enough for a five-column phone row. Two classes so it outranks
+   .score-input regardless of where either rule sits in this file; the number
+   spinners are hidden because they would eat most of the column. */
+.scoreboard .scoreboard-adjust-input{width:100%;box-sizing:border-box;padding:3px 4px;font-size:11px;border-radius:4px;-moz-appearance:textfield;appearance:textfield}
+.scoreboard .scoreboard-adjust-input::-webkit-outer-spin-button,.scoreboard .scoreboard-adjust-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+@media (min-width:480px){.scoreboard .scoreboard-table td.scoreboard-adjust{padding:4px 6px}.scoreboard .scoreboard-adjust-input{padding:4px 6px;font-size:13px}}

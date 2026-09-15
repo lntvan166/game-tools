@@ -33,6 +33,16 @@ export interface WinCountGame extends SessionGame {
 export interface WinCountSession extends Session<WinCountGame> {
   /** Bet a newly started game inherits. Each game may then diverge. */
   config: WinCountConfig;
+  /**
+   * Manual per-player corrections to the session money total, keyed by player
+   * id. Settling a side bet in cash, covering someone's round, splitting the
+   * beer — things that move money without moving a win.
+   *
+   * These touch the Total board's money column and nothing else: no round, no
+   * win, no per-game board reads them. A player with no correction has no
+   * entry, so an empty map is the normal state.
+   */
+  moneyAdjustments?: Record<string, number>;
 }
 
 export const MIN_WIN_COUNT_PLAYERS = 2;
@@ -64,6 +74,7 @@ export function createWinCountSession(playerNames: string[]): WinCountSession {
     activeGameIndex: 0,
     createdAt: now,
     config: { ...DEFAULT_WIN_COUNT_CONFIG },
+    moneyAdjustments: {},
   };
 }
 
@@ -94,6 +105,40 @@ export function replaceGame(
 ): WinCountSession {
   if (index < 0 || index >= session.games.length) return session;
   return { ...session, games: session.games.map((g, i) => (i === index ? game : g)) };
+}
+
+/**
+ * Earned money plus its manual correction, per player.
+ *
+ * Returns a new map; the earned map is computed from rounds and must stay that
+ * way. A player who has earned nothing but carries a correction still gets a
+ * row, which is the point — that is how someone who sat out a game still owes.
+ */
+export function applyMoneyAdjustments(
+  earned: Record<string, number>,
+  adjustments: Record<string, number>
+): Record<string, number> {
+  const result = { ...earned };
+  Object.entries(adjustments).forEach(([id, v]) => {
+    result[id] = (result[id] ?? 0) + v;
+  });
+  return result;
+}
+
+/**
+ * Set one player's money correction. Zero removes the entry rather than
+ * storing a 0, so `moneyAdjustments` answers "who has been corrected" by its
+ * keys alone — which is what `shouldShowSessionMoney` leans on.
+ */
+export function setMoneyAdjustment(
+  session: WinCountSession,
+  playerId: string,
+  amount: number
+): WinCountSession {
+  const next = { ...(session.moneyAdjustments ?? {}) };
+  if (amount === 0 || !Number.isFinite(amount)) delete next[playerId];
+  else next[playerId] = amount;
+  return { ...session, moneyAdjustments: next };
 }
 
 /** Roster entries for a game, in the game's own player order. */
@@ -177,22 +222,29 @@ export function calcWinCountTotalMoney(game: WinCountGame): Record<string, numbe
 
 export function calcWinCountSessionTotals(session: WinCountSession): {
   scores: Record<string, number>;
+  /** Won and lost at the table, rounds only. Stays zero-sum. */
+  earnedMoney: Record<string, number>;
+  /** What each player actually settles: earned plus their manual correction. */
   money: Record<string, number>;
   gamesPlayed: Record<string, number>;
 } {
+  const earnedMoney = sumTotals(session.games.map(calcWinCountTotalMoney));
   return {
     scores: sumTotals(session.games.map(calcWinCountTotalScores)),
-    money: sumTotals(session.games.map(calcWinCountTotalMoney)),
+    earnedMoney,
+    money: applyMoneyAdjustments(earnedMoney, session.moneyAdjustments ?? {}),
     gamesPlayed: countGamesPlayed(session),
   };
 }
 
 /**
- * Money surfaces show if any round of any game was ever priced — the
- * per-game rule from `money.ts`, widened to the session, so a bet set back to
- * zero cannot hide money that is still owed.
+ * Money surfaces show if any round of any game was ever priced, or if any
+ * manual correction is standing — the per-game rule from `money.ts`, widened
+ * to the session, so neither a bet set back to zero nor a bet that was never
+ * set can hide money that is still owed.
  */
 export function shouldShowSessionMoney(session: WinCountSession): boolean {
+  if (Object.values(session.moneyAdjustments ?? {}).some((v) => v !== 0)) return true;
   return session.games.some((g) =>
     shouldShowMoney(
       g.config.betAmount,
@@ -203,6 +255,20 @@ export function shouldShowSessionMoney(session: WinCountSession): boolean {
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null;
+}
+
+/**
+ * Keep only finite numeric corrections. A hand-edited or half-written blob
+ * must not be able to turn a money total into NaN, which would poison every
+ * figure on the board at once.
+ */
+function parseMoneyAdjustments(raw: unknown): Record<string, number> {
+  if (!isRecord(raw)) return {};
+  const out: Record<string, number> = {};
+  Object.entries(raw).forEach(([id, v]) => {
+    if (typeof v === 'number' && Number.isFinite(v)) out[id] = v;
+  });
+  return out;
 }
 
 /**
@@ -237,6 +303,7 @@ export function parseWinCountSession(raw: unknown): WinCountSession | null {
       config: isRecord(raw.config)
         ? { betAmount: Number(raw.config.betAmount) || 0 }
         : { ...DEFAULT_WIN_COUNT_CONFIG },
+      moneyAdjustments: parseMoneyAdjustments(raw.moneyAdjustments),
     };
   }
 
@@ -262,6 +329,7 @@ export function parseWinCountSession(raw: unknown): WinCountSession | null {
     activeGameIndex: 0,
     createdAt,
     config,
+    moneyAdjustments: {},
   };
 }
 
