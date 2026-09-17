@@ -256,6 +256,13 @@ body.has-mode-tabs #root{display:flex;flex-direction:column;min-height:100vh;wid
 .scoreboard-table.wincount-total.has-money col:nth-child(4){width:72px}
 .scoreboard-table.wincount-total.has-money col:nth-child(5){width:38px}
 @media (min-width:480px){.scoreboard-table.wincount-total col:nth-child(2){width:64px}.scoreboard-table.wincount-total col:nth-child(3){width:64px}.scoreboard-table.wincount-total.has-money col:nth-child(2){width:50px}.scoreboard-table.wincount-total.has-money col:nth-child(3){width:84px}.scoreboard-table.wincount-total.has-money col:nth-child(4){width:96px}.scoreboard-table.wincount-total.has-money col:nth-child(5){width:50px}}
+/* The board people screenshot to settle up: every row renders, nothing clips.
+   The page scrolls instead of the board, so all players land in one capture. */
+.scoreboard.scoreboard-full{max-height:none}
+.scoreboard.scoreboard-full .scoreboard-body{overflow:visible}
+/* Five buttons in a 2-col grid leave the last one half-width and lopsided. */
+.wincount-score .score-header>:last-child:nth-child(odd){grid-column:1/-1}
+@media (min-width:480px){.wincount-score .score-header>:last-child:nth-child(odd){grid-column:auto}}
 .scoreboard-col-adjust{text-align:left}
 .scoreboard-table td.scoreboard-adjust{padding:2px 3px}
 .wincount-roster-existing{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}

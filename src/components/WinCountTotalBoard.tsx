@@ -19,6 +19,10 @@ interface WinCountTotalBoardProps {
  * The Games column is load-bearing, not decoration: without it a player who
  * joined at Game 3 looks like they are simply losing.
  *
+ * It carries `scoreboard-full`: the Total board is the one people screenshot to
+ * settle up, so it grows to fit every player instead of scrolling rows out of
+ * frame. Per-game boards keep their cap.
+ *
  * The Adjust column is the one editable thing on this board. It moves money
  * only — a correction typed here never becomes a win, a round, or anything the
  * per-game boards can see.
@@ -36,7 +40,7 @@ const WinCountTotalBoard: React.FC<WinCountTotalBoardProps> = ({
   const cls = `wincount-total${showMoney ? ' has-money' : ''}`;
 
   return (
-    <div className="scoreboard">
+    <div className="scoreboard scoreboard-full">
       <h3 className="scoreboard-title">Total</h3>
       <div className={`scoreboard-header ${cls}`}>
         <span className="scoreboard-col-player">Player</span>

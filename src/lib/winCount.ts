@@ -108,6 +108,41 @@ export function replaceGame(
 }
 
 /**
+ * Delete a game and everything derived from it.
+ *
+ * The roster is pruned to match: a player kept only by the removed game leaves
+ * the board entirely, so the total board never shows a 0/0/0 row for someone
+ * whose only game is gone. A standing money correction overrides that — money
+ * still owed outlives the game it came from, and pruning the player would
+ * silently erase it.
+ *
+ * Refuses to remove the last game. A session with no games has no roster, no
+ * totals and no tabs; that is `New Session`, not a removal.
+ */
+export function removeGame(session: WinCountSession, index: number): WinCountSession {
+  if (index < 0 || index >= session.games.length) return session;
+  if (session.games.length <= 1) return session;
+
+  const games = session.games.filter((_, i) => i !== index);
+  const adjustments = session.moneyAdjustments ?? {};
+  const stillPlaying = new Set(games.flatMap((g) => g.playerIds));
+
+  return {
+    ...session,
+    games,
+    players: session.players.filter(
+      (p) => stillPlaying.has(p.id) || (adjustments[p.id] ?? 0) !== 0
+    ),
+    // Removing a game before the active one shifts it down; removing the active
+    // one lands on the game that took its place, or the new last game.
+    activeGameIndex: Math.min(
+      session.activeGameIndex > index ? session.activeGameIndex - 1 : session.activeGameIndex,
+      games.length - 1
+    ),
+  };
+}
+
+/**
  * Earned money plus its manual correction, per player.
  *
  * Returns a new map; the earned map is computed from rounds and must stay that

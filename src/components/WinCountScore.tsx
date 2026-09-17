@@ -6,6 +6,7 @@ import {
   startWinCountGame,
   replaceGame,
   resetWinCountGame,
+  removeGame,
   addWinCountRound,
   updateWinCountRound,
   removeWinCountRound,
@@ -43,6 +44,7 @@ const WinCountScore: React.FC = () => {
   const [showRosterModal, setShowRosterModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showNewSessionConfirm, setShowNewSessionConfirm] = useState(false);
+  const [showRemoveGameConfirm, setShowRemoveGameConfirm] = useState(false);
   const [configEdit, setConfigEdit] = useState<WinCountConfig>(DEFAULT_WIN_COUNT_CONFIG);
   const [roundToDelete, setRoundToDelete] = useState<number | null>(null);
   const [roundToEdit, setRoundToEdit] = useState<number | null>(null);
@@ -130,6 +132,16 @@ const WinCountScore: React.FC = () => {
     setShowResetConfirm(false);
   }, [game, putGame]);
 
+  const confirmRemoveGame = useCallback(() => {
+    setSession((prev) => {
+      if (!prev || gameIndex < 0) return prev;
+      const next = removeGame(prev, gameIndex);
+      setTab(next.activeGameIndex);
+      return next;
+    });
+    setShowRemoveGameConfirm(false);
+  }, [gameIndex]);
+
   const handleAdjustmentChange = useCallback((playerId: string, amount: number) => {
     setSession((prev) => (prev ? setMoneyAdjustment(prev, playerId, amount) : prev));
   }, []);
@@ -164,6 +176,8 @@ const WinCountScore: React.FC = () => {
   const money = game ? calcWinCountTotalMoney(game) : {};
   const sortedPlayers = [...gamePlayers].sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0));
   const gameLabel = gameIndex >= 0 ? `G${gameIndex + 1}` : '';
+  // The last game cannot go: a session with no games has no roster and no tabs.
+  const canRemoveGame = game !== null && session.games.length > 1;
 
   return (
     <div className="wincount-score tienlen-score">
@@ -190,6 +204,14 @@ const WinCountScore: React.FC = () => {
           onClick={() => setShowRosterModal(true)}
         >
           New Game
+        </button>
+        <button
+          type="button"
+          className="score-btn score-btn-secondary"
+          onClick={() => setShowRemoveGameConfirm(true)}
+          disabled={!canRemoveGame}
+        >
+          Remove Game
         </button>
         <button
           type="button"
@@ -348,6 +370,16 @@ const WinCountScore: React.FC = () => {
         </div>
       )}
 
+      {canRemoveGame && showRemoveGameConfirm && (
+        <RemoveGameConfirmModal
+          session={session}
+          gameIndex={gameIndex}
+          gameLabel={gameLabel}
+          onCancel={() => setShowRemoveGameConfirm(false)}
+          onConfirm={confirmRemoveGame}
+        />
+      )}
+
       {showRosterModal && (
         <WinCountRosterModal
           title="New Game"
@@ -390,6 +422,69 @@ const WinCountScore: React.FC = () => {
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+interface RemoveGameConfirmModalProps {
+  session: WinCountSession;
+  gameIndex: number;
+  gameLabel: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
+
+/**
+ * Removing a game can also remove people. Rather than re-deriving that rule
+ * here and risking it drifting from the real one, the warning diffs the roster
+ * against the session `removeGame` would actually produce.
+ */
+const RemoveGameConfirmModal: React.FC<RemoveGameConfirmModalProps> = ({
+  session,
+  gameIndex,
+  gameLabel,
+  onCancel,
+  onConfirm,
+}) => {
+  const after = removeGame(session, gameIndex);
+  const dropped = session.players.filter((p) => !after.players.some((q) => q.id === p.id));
+  const roundCount = session.games[gameIndex].rounds.length;
+  const isLast = gameIndex === session.games.length - 1;
+
+  return (
+    <div
+      className="score-modal-overlay"
+      onClick={onCancel}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="wincount-remove-game-title"
+    >
+      <div className="score-modal" onClick={(e) => e.stopPropagation()}>
+        <h2 id="wincount-remove-game-title" className="score-modal-title">
+          Remove {gameLabel}?
+        </h2>
+        <p className="score-reset-hint">
+          This deletes {gameLabel}&rsquo;s {roundCount} round{roundCount === 1 ? '' : 's'} and its
+          money from the totals. It cannot be undone.
+        </p>
+        {dropped.length > 0 && (
+          <p className="score-reset-hint">
+            {dropped.map((p) => p.name).join(', ')} played only in {gameLabel} and will drop off the
+            board.
+          </p>
+        )}
+        {!isLast && (
+          <p className="score-reset-hint">Later games are renumbered.</p>
+        )}
+        <div className="score-modal-actions">
+          <button type="button" className="score-btn score-btn-secondary" onClick={onCancel}>
+            Cancel
+          </button>
+          <button type="button" className="score-btn score-btn-primary" onClick={onConfirm}>
+            Remove
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

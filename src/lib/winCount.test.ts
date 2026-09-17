@@ -18,8 +18,10 @@ import {
   DEFAULT_WIN_COUNT_CONFIG,
   applyMoneyAdjustments,
   setMoneyAdjustment,
+  removeGame,
 } from './winCount';
 import type { WinCountGame, WinCountSession } from './winCount';
+import { createSessionPlayer } from './session';
 
 /** A one-game session plus that game, the pair most tests need. */
 function setup(
@@ -469,5 +471,87 @@ describe('parseWinCountSession adjustments', () => {
       createdAt: 1,
     })!;
     expect(s.moneyAdjustments).toEqual({});
+  });
+});
+
+describe('removeGame', () => {
+  /** Session of two games: A+B play G1, A+C play G2. */
+  function twoGames() {
+    const { session, ids } = setup(['A', 'B'], 5000);
+    const [a, b] = ids;
+    let s = addRounds(session, 0, [a, a, b]);
+    const c = createSessionPlayer('C');
+    s = { ...s, players: [...s.players, c] };
+    s = startWinCountGame(s, [a, c.id]);
+    s = addRounds(s, 1, [c.id, c.id]);
+    return { session: s, a, b, c: c.id };
+  }
+
+  /** Record one win per id into the game at `index`. */
+  function addRounds(s: WinCountSession, index: number, winnerIds: string[]): WinCountSession {
+    let game = s.games[index];
+    winnerIds.forEach((winnerId) => (game = addWinCountRound(game, { winnerId })));
+    return replaceGame(s, index, game);
+  }
+
+  it('drops the game and renumbers the rest by position', () => {
+    const { session } = twoGames();
+    const s = removeGame(session, 0);
+    expect(s.games).toHaveLength(1);
+    expect(s.games[0].rounds).toHaveLength(2);
+  });
+
+  it('keeps the remaining games untouched', () => {
+    const { session } = twoGames();
+    expect(removeGame(session, 1).games[0]).toEqual(session.games[0]);
+  });
+
+  it('recomputes totals from only the surviving games', () => {
+    const { session, a, b } = twoGames();
+    const totals = calcWinCountSessionTotals(removeGame(session, 1));
+    expect(totals.scores[a]).toBe(2);
+    expect(totals.scores[b]).toBe(1);
+    expect(totals.gamesPlayed[a]).toBe(1);
+  });
+
+  it('drops a player who played only in the removed game', () => {
+    const { session, c } = twoGames();
+    const s = removeGame(session, 1);
+    expect(s.players.map((p) => p.name)).toEqual(['A', 'B']);
+    expect(s.players.some((p) => p.id === c)).toBe(false);
+  });
+
+  it('keeps a dropped player who still carries a money adjustment', () => {
+    const { session, c } = twoGames();
+    const s = removeGame(setMoneyAdjustment(session, c, -20000), 1);
+    expect(s.players.some((p) => p.id === c)).toBe(true);
+    expect(calcWinCountSessionTotals(s).money[c]).toBe(-20000);
+  });
+
+  it('keeps a player who sat out the removed game but played another', () => {
+    const { session, b } = twoGames();
+    expect(removeGame(session, 1).players.some((p) => p.id === b)).toBe(true);
+  });
+
+  it('clamps activeGameIndex when the active game is removed', () => {
+    const { session } = twoGames();
+    expect(session.activeGameIndex).toBe(1);
+    expect(removeGame(session, 1).activeGameIndex).toBe(0);
+  });
+
+  it('shifts activeGameIndex down when an earlier game is removed', () => {
+    const { session } = twoGames();
+    expect(removeGame(session, 0).activeGameIndex).toBe(0);
+  });
+
+  it('refuses to remove the only game', () => {
+    const { session } = setup(['A', 'B'], 5000);
+    expect(removeGame(session, 0)).toBe(session);
+  });
+
+  it('ignores an out-of-range index', () => {
+    const { session } = twoGames();
+    expect(removeGame(session, -1)).toBe(session);
+    expect(removeGame(session, 2)).toBe(session);
   });
 });
